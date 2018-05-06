@@ -1,35 +1,21 @@
 package org.webshark;
 
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import de.saxsys.mvvmfx.FluentViewLoader;
+import de.saxsys.mvvmfx.guice.MvvmfxGuiceApplication;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.webshark.view.ProxyStartView;
 
-public class App extends Application {
+public class App extends MvvmfxGuiceApplication {
 
     @Override
-    public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+    public void startMvvmfx(Stage stage) throws Exception {
+        stage.setTitle("Webshark");
 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
-
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-
-        Scene scene = new Scene(root, 300, 250);
-
-        primaryStage.setTitle("Hello World!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        var viewTuple = FluentViewLoader.fxmlView(ProxyStartView.class).load();
+        var root = viewTuple.getView();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     public static void main(String[] args) {
