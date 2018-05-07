@@ -14,16 +14,18 @@ public class ProxyStartView implements FxmlView<ProxyStartViewModel>, Initializa
     @FXML
     private TextField proxyAddr;
     @FXML
-    private TextField proxyPort;
-    @FXML
     private TextField targetAddr;
-    @FXML
-    private TextField targetPort;
     @InjectViewModel
     private ProxyStartViewModel viewModel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        proxyAddr.textProperty().bindBidirectional(viewModel.proxyAddrProperty());
+        targetAddr.textProperty().bindBidirectional(viewModel.targetAddrProperty());
+    }
 
+    @FXML
+    private void onStart() {
+        viewModel.startProxy();
     }
 }
