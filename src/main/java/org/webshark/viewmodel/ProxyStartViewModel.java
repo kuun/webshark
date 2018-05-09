@@ -3,10 +3,11 @@ package org.webshark.viewmodel;
 import com.google.inject.Inject;
 import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.utils.mapping.ModelWrapper;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.webshark.model.ProxyConf;
-import org.webshark.servie.IProxyService;
+import org.webshark.servie.proxy.IProxyService;
+
+import java.net.MalformedURLException;
 
 public class ProxyStartViewModel implements ViewModel {
     private ModelWrapper<ProxyConf> wrapper = new ModelWrapper<>();
@@ -25,7 +26,7 @@ public class ProxyStartViewModel implements ViewModel {
         return wrapper.field("targetAddr", ProxyConf::getTargetAddr, ProxyConf::setTargetAddr, "");
     }
 
-    public void startProxy() {
+    public void startProxy() throws MalformedURLException {
         wrapper.commit();
         // todo: valid proxy conf
         // handle exception
