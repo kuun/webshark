@@ -1,5 +1,6 @@
 package org.webshark.servie.proxy;
 
+import com.google.inject.Inject;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
@@ -8,18 +9,24 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.internal.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webshark.model.ProxyConf;
+import org.webshark.servie.record.IRecordService;
 
 import java.net.SocketAddress;
 
 class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
     private static final Logger log = LoggerFactory.getLogger(ProxySession.class);
     private Bootstrap clientBootstrap;
+    private ProxyConf proxyConf;
     private SocketAddress targetAddr;
     private String targetHost;
     private Channel proxyChannel;
     private Channel targetChannel;
     private TargetWriteListener targetWriteListener = new TargetWriteListener();
     private ProxyWriteListener proxyWriteListener = new ProxyWriteListener();
+    @Inject
+    private IRecordService recordService;
+    private int currentRecordId;
 
 
     // reads message from target server, then writes to the client.
@@ -27,12 +34,12 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
             // log.debug("response message: {}", msg);
-
             if (msg instanceof HttpResponse) {
-                // todo: record message.
-            }else if (msg instanceof LastHttpContent) {
-
+                recordService.recordResponse(currentRecordId, (HttpResponse)msg);
             } else if (msg instanceof HttpContent) {
+                recordService.recordResponseContent(currentRecordId, (HttpContent)msg);
+            } else {
+                log.error("unsupported http message: {}", msg);
             }
             proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
         }
@@ -71,6 +78,11 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         return this;
     }
 
+    public ProxySession setProxyConf(ProxyConf proxyConf) {
+        this.proxyConf = proxyConf;
+        return this;
+    }
+
     public ProxySession setTargetAddr(SocketAddress targetAddr) {
         this.targetAddr = targetAddr;
         return this;
@@ -100,15 +112,18 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
             var req = (HttpRequest)msg;
             req.headers().set("Host", targetHost);
             connectTargret(req);
-        }else {
+            currentRecordId = recordService.recordRequest(proxyConf, req);
+        }else if (msg instanceof HttpContent){
             if (msg instanceof LastHttpContent) {
-                var lastMsg = (LastHttpContent)msg;
-                if (lastMsg != LastHttpContent.EMPTY_LAST_CONTENT) {
+                if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
                     targetChannel.writeAndFlush(msg).addListener(targetWriteListener);
                 }
-            } else if (msg instanceof HttpContent) {
+            } else {
                 targetChannel.writeAndFlush(msg).addListener(targetWriteListener);
             }
+            recordService.recordRequestContent(currentRecordId, (HttpContent)msg);
+        } else {
+            log.error("unsuppored http message: {}", msg);
         }
     }
 

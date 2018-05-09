@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.util.internal.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webshark.App;
 import org.webshark.model.ProxyConf;
 
 import java.net.InetSocketAddress;
@@ -79,8 +80,9 @@ class ProxyServer {
                     );
                 }
                 // add proxy session to channel pipeline.
-                var session = new ProxySession();
+                var session = App.injector.getInstance(ProxySession.class);
                 session.setClientBootstrap(clientBootstrap)
+                    .setProxyConf(conf)
                     .setTargetAddr(targetAddr)
                     .setTargetHost(targetHost);
                 pipeline.addLast(session);
