@@ -5,7 +5,7 @@ import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.guice.MvvmfxGuiceApplication;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.webshark.view.ProxyStartView;
+import org.webshark.view.MainView;
 
 public class App extends MvvmfxGuiceApplication {
     public static Injector injector;
@@ -13,10 +13,12 @@ public class App extends MvvmfxGuiceApplication {
     @Override
     public void startMvvmfx(Stage stage) throws Exception {
         injector = getInjector();
-        
-        stage.setTitle("Webshark");
 
-        var viewTuple = FluentViewLoader.fxmlView(ProxyStartView.class).load();
+        stage.setTitle("Webshark");
+        stage.setMinWidth(1200);
+        stage.setMinHeight(700);
+
+        var viewTuple = FluentViewLoader.javaView(MainView.class).load();
         var root = viewTuple.getView();
         stage.setScene(new Scene(root));
         stage.show();

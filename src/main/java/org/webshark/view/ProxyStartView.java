@@ -1,7 +1,9 @@
 package org.webshark.view;
 
+import com.google.inject.Inject;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.utils.notifications.NotificationCenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -21,17 +23,21 @@ public class ProxyStartView implements FxmlView<ProxyStartViewModel>, Initializa
     private TextField targetAddr;
     @InjectViewModel
     private ProxyStartViewModel viewModel;
+    @Inject
+    private NotificationCenter notificationCenter;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        proxyAddr.textProperty().bindBidirectional(viewModel.proxyAddrProperty());
-        targetAddr.textProperty().bindBidirectional(viewModel.targetAddrProperty());
+        var conf = viewModel.getConf();
+        proxyAddr.textProperty().bindBidirectional(conf.proxyAddrProperty());
+        targetAddr.textProperty().bindBidirectional(conf.targetAddrProperty());
     }
 
     @FXML
     private void onStart() {
         try {
             viewModel.startProxy();
+            notificationCenter.publish(MainView.Notification.PROXY_STARTED.name());
         } catch (MalformedURLException e) {
             var alert = new Alert(Alert.AlertType.ERROR, "malformed url", ButtonType.CLOSE);
             alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);

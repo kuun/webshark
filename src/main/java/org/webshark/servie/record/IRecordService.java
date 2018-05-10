@@ -4,9 +4,9 @@ import com.google.inject.ImplementedBy;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import javafx.collections.ObservableList;
+import org.webshark.model.HttpRecord;
 import org.webshark.model.ProxyConf;
-
-import java.util.List;
 
 @ImplementedBy(RecordServiceImpl.class)
 public interface IRecordService {
@@ -18,5 +18,5 @@ public interface IRecordService {
 
     void recordResponseContent(int recordId, HttpContent content);
 
-    List<HttpRecord> getRecords();
+    ObservableList<HttpRecord> getRecords();
 }

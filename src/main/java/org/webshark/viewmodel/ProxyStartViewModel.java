@@ -2,34 +2,25 @@ package org.webshark.viewmodel;
 
 import com.google.inject.Inject;
 import de.saxsys.mvvmfx.ViewModel;
-import de.saxsys.mvvmfx.utils.mapping.ModelWrapper;
-import javafx.beans.property.StringProperty;
 import org.webshark.model.ProxyConf;
 import org.webshark.servie.proxy.IProxyService;
 
 import java.net.MalformedURLException;
 
 public class ProxyStartViewModel implements ViewModel {
-    private ModelWrapper<ProxyConf> wrapper = new ModelWrapper<>();
+    private ProxyConf conf = new ProxyConf();
     @Inject
     private IProxyService proxyService;
 
     public ProxyStartViewModel() {
-        wrapper.set(new ProxyConf());
     }
 
-    public StringProperty proxyAddrProperty() {
-        return wrapper.field("proxyAddr", ProxyConf::getProxyAddr, ProxyConf::setProxyAddr, "localhost");
-    }
-
-    public StringProperty targetAddrProperty() {
-        return wrapper.field("targetAddr", ProxyConf::getTargetAddr, ProxyConf::setTargetAddr, "");
+    public ProxyConf getConf() {
+        return conf;
     }
 
     public void startProxy() throws MalformedURLException {
-        wrapper.commit();
         // todo: valid proxy conf
-        // handle exception
-        proxyService.startProxy(wrapper.get());
+        proxyService.startProxy(conf);
     }
 }

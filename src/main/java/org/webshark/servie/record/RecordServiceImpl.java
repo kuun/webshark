@@ -1,21 +1,25 @@
 package org.webshark.servie.record;
 
 import com.google.inject.Singleton;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webshark.model.HttpRecord;
 import org.webshark.model.ProxyConf;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton
 class RecordServiceImpl implements IRecordService {
     private static final Logger log = LoggerFactory.getLogger(RecordServiceImpl.class);
-    private List<HttpRecord> records = new LinkedList<>();
+    private ObservableList<HttpRecord> records = FXCollections.observableArrayList();
     private Map<Integer, HttpRecord> incompleteRecordMap = new HashMap<>();
     private AtomicInteger nextId = new AtomicInteger(1);
 
@@ -68,7 +72,7 @@ class RecordServiceImpl implements IRecordService {
     }
 
     @Override
-    public List<HttpRecord> getRecords() {
+    public ObservableList<HttpRecord> getRecords() {
         return records;
     }
 }

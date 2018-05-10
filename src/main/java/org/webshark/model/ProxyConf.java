@@ -1,25 +1,35 @@
 package org.webshark.model;
 
+import javafx.beans.property.SimpleStringProperty;
+
 import java.util.Objects;
 
 public class ProxyConf {
-    private String proxyAddr;
-    private String targetAddr;
+    private SimpleStringProperty proxyAddr = new SimpleStringProperty();
+    private SimpleStringProperty targetAddr = new SimpleStringProperty();
 
     public String getProxyAddr() {
-        return proxyAddr;
+        return proxyAddr.get();
     }
 
     public void setProxyAddr(String proxyAddr) {
-        this.proxyAddr = proxyAddr;
+        this.proxyAddr.set(proxyAddr);
+    }
+
+    public SimpleStringProperty proxyAddrProperty() {
+        return proxyAddr;
     }
 
     public String getTargetAddr() {
-        return targetAddr;
+        return targetAddr.get();
     }
 
     public void setTargetAddr(String targetAddr) {
-        this.targetAddr = targetAddr;
+        this.targetAddr.set(targetAddr);
+    }
+
+    public SimpleStringProperty targetAddrProperty() {
+        return targetAddr;
     }
 
     @Override
