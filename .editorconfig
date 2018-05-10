@@ -20,4 +20,4 @@ indent_size = 4
 
 [*.fxml]
 indent_style = space
-indent_size = 3
+indent_size = 2
