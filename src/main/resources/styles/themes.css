@@ -1,0 +1,17 @@
+.table-row-cell:hover {
+    -fx-background-color: -fx-cell-hover-color;
+}
+
+.table-row-cell:filled:focused:selected {
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background: -fx-accent;
+    -fx-text-fill: -fx-selection-bar-text;
+}
+
+.table-row-cell:filled:focused:selected:hover {
+    -fx-background-color: -fx-focus-color, -fx-cell-focus-inner-border;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background: -fx-accent;
+    -fx-text-fill: -fx-selection-bar-text;
+}

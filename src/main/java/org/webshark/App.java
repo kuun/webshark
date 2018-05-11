@@ -20,7 +20,9 @@ public class App extends MvvmfxGuiceApplication {
 
         var viewTuple = FluentViewLoader.javaView(MainView.class).load();
         var root = viewTuple.getView();
-        stage.setScene(new Scene(root));
+        var scene = new Scene(root);
+        scene.getStylesheets().add(App.class.getResource("/styles/themes.css").toExternalForm());
+        stage.setScene(scene);
         stage.show();
     }
 
