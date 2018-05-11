@@ -8,7 +8,7 @@ import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webshark.model.HttpRecord;
-import org.webshark.servie.record.IRecordService;
+import org.webshark.service.record.IRecordService;
 
 public class RecordViewModel implements ViewModel {
     private static final Logger log = LoggerFactory.getLogger(RecordViewModel.class);

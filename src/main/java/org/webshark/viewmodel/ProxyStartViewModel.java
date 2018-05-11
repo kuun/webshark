@@ -3,7 +3,7 @@ package org.webshark.viewmodel;
 import com.google.inject.Inject;
 import de.saxsys.mvvmfx.ViewModel;
 import org.webshark.model.ProxyConf;
-import org.webshark.servie.proxy.IProxyService;
+import org.webshark.service.proxy.IProxyService;
 
 import java.net.MalformedURLException;
 

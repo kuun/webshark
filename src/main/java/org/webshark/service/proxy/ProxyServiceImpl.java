@@ -1,4 +1,4 @@
-package org.webshark.servie.proxy;
+package org.webshark.service.proxy;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -7,7 +7,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webshark.model.ProxyConf;
-import org.webshark.servie.record.IRecordService;
+import org.webshark.service.record.IRecordService;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;

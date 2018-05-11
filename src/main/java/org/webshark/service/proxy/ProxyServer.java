@@ -1,4 +1,4 @@
-package org.webshark.servie.proxy;
+package org.webshark.service.proxy;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;

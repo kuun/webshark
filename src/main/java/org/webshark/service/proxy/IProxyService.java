@@ -1,4 +1,4 @@
-package org.webshark.servie.proxy;
+package org.webshark.service.proxy;
 
 import com.google.inject.ImplementedBy;
 import org.webshark.model.ProxyConf;

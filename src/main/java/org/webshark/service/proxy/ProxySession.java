@@ -1,4 +1,4 @@
-package org.webshark.servie.proxy;
+package org.webshark.service.proxy;
 
 import com.google.inject.Inject;
 import io.netty.bootstrap.Bootstrap;
@@ -10,7 +10,7 @@ import io.netty.util.internal.ThrowableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webshark.model.ProxyConf;
-import org.webshark.servie.record.IRecordService;
+import org.webshark.service.record.IRecordService;
 
 import java.net.SocketAddress;
 

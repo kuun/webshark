@@ -1,4 +1,4 @@
-package org.webshark.servie.record;
+package org.webshark.service.record;
 
 import com.google.inject.ImplementedBy;
 import io.netty.handler.codec.http.HttpContent;
