@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.webshark.model.ProxyConf;
 import org.webshark.service.record.IRecordService;
 
+import java.net.HttpCookie;
 import java.net.SocketAddress;
 
 class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
@@ -35,13 +36,18 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
             // log.debug("response message: {}", msg);
             if (msg instanceof HttpResponse) {
+                proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
                 recordService.recordResponse(currentRecordId, (HttpResponse)msg);
             } else if (msg instanceof HttpContent) {
+                if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
+                    ((HttpContent)msg).retain();
+                    proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
+                }
                 recordService.recordResponseContent(currentRecordId, (HttpContent)msg);
             } else {
                 log.error("unsupported http message: {}", msg);
             }
-            proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
+
         }
     }
 
@@ -114,11 +120,8 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
             connectTargret(req);
             currentRecordId = recordService.recordRequest(proxyConf, req);
         }else if (msg instanceof HttpContent){
-            if (msg instanceof LastHttpContent) {
-                if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
-                    targetChannel.writeAndFlush(msg).addListener(targetWriteListener);
-                }
-            } else {
+            if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
+                ((HttpContent)msg).retain();
                 targetChannel.writeAndFlush(msg).addListener(targetWriteListener);
             }
             recordService.recordRequestContent(currentRecordId, (HttpContent)msg);
