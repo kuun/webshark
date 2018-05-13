@@ -45,12 +45,12 @@
                                   <content>
                                     <AnchorPane>
                                       <children>
-                                        <TableView fx:id="generalHeaderTable" AnchorPane.leftAnchor="0.0"
-                                                   AnchorPane.rightAnchor="0.0" minHeight="-Infinity">
+                                        <TableView fx:id="generalHeaderTable" fixedCellSize="24" prefHeight="48"
+                                                   AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
+                                                   AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                           <columns>
                                             <TableColumn fx:id="generalColFieldName" prefWidth="75.0"
-                                                         style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;"
-                                                         text="Field name"/>
+                                                         style="-fx-font-weight: bold;" text="Field name"/>
                                             <TableColumn fx:id="generalColFieldValue" prefWidth="75.0" text="Value"/>
                                           </columns>
                                           <columnResizePolicy>
@@ -69,12 +69,12 @@
                                   <content>
                                     <AnchorPane>
                                       <children>
-                                        <TableView fx:id="responseHeaderTable" prefHeight="301.0" prefWidth="273.0"
-                                                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                                        <TableView fx:id="responseHeaderTable" fixedCellSize="24" prefHeight="48"
+                                                   AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
+                                                   AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                           <columns>
                                             <TableColumn fx:id="requestColFieldName" prefWidth="75.0"
-                                                         style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold"
-                                                         text="Field name"/>
+                                                         style="-fx-font-weight: bold;" text="Field name"/>
                                             <TableColumn fx:id="requestColFieldValue" prefWidth="75.0" text="Value"/>
                                           </columns>
                                           <columnResizePolicy>
@@ -93,12 +93,12 @@
                                   <content>
                                     <AnchorPane>
                                       <children>
-                                        <TableView fx:id="requestHeaderTable" prefHeight="301.0" prefWidth="273.0"
-                                                   AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                                        <TableView fx:id="requestHeaderTable" fixedCellSize="24" prefHeight="48"
+                                                   AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
+                                                   AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                                           <columns>
                                             <TableColumn fx:id="responseColFieldName" prefWidth="75.0"
-                                                         style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold"
-                                                         text="Field name"/>
+                                                         style="-fx-font-weight: bold;" text="Field name"/>
                                             <TableColumn fx:id="responseColFieldValue" prefWidth="75.0" text="Value"/>
                                           </columns>
                                           <columnResizePolicy>

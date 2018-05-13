@@ -2,6 +2,7 @@ package org.webshark.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -63,8 +64,11 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
             if (newValue != null) {
                 var record = newValue;
                 generalHeaderTable.setItems(record.getGeneralHeaderInfo());
+                autoSizeTable(generalHeaderTable);
                 requestHeaderTable.setItems(record.getRequestHeaderInfo());
+                autoSizeTable(requestHeaderTable);
                 responseHeaderTable.setItems(record.getResponseHeaderInfo());
+                autoSizeTable(responseHeaderTable);
             }
         }));
 
@@ -78,6 +82,13 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
         requestColFieldValue.setCellValueFactory(filedValueCellFactory);
         responseColFieldName.setCellValueFactory(fieldNameCellFactory);
         responseColFieldValue.setCellValueFactory(filedValueCellFactory);
+
     }
 
+    private void autoSizeTable(TableView table) {
+        table.prefHeightProperty().bind(table.fixedCellSizeProperty().multiply(Bindings.size(table.getItems())).add(26));
+        table.minHeightProperty().bind(table.prefHeightProperty());
+        table.maxHeightProperty().bind(table.prefHeightProperty());
+
+    }
 }
