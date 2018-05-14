@@ -1,7 +1,6 @@
 package org.webshark.viewmodel;
 
 import de.saxsys.mvvmfx.InjectScope;
-import de.saxsys.mvvmfx.ScopeProvider;
 import de.saxsys.mvvmfx.ViewModel;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.ObservableList;
@@ -9,7 +8,6 @@ import org.webshark.model.HeaderInfo;
 import org.webshark.model.HttpRecord;
 import org.webshark.scope.RecordPageScope;
 
-@ScopeProvider(scopes = {RecordPageScope.class})
 public class DetailViewModel implements ViewModel {
     @InjectScope
     private RecordPageScope scope;
@@ -18,14 +16,9 @@ public class DetailViewModel implements ViewModel {
     private SimpleListProperty<HeaderInfo> requestHeaders = new SimpleListProperty<>();
     private SimpleListProperty<HeaderInfo> responseHeaders = new SimpleListProperty<>();
 
-
-    public DetailViewModel() {
+    public void initialize() {
         scope.subscribe(RecordPageScope.Notification.FOCUSED_RECORD_CHANGED.name(), (key, payload) -> {
-            var record = (HttpRecord)payload[0];
-
-            generalHeaders.removeAll();
-            generalHeaders.addAll(record.getGeneralHeaderInfo());
-
+            var record = (HttpRecord) payload[0];
             generalHeaders.setValue(record.getGeneralHeaderInfo());
             requestHeaders.setValue(record.getRequestHeaderInfo());
             responseHeaders.setValue(record.getResponseHeaderInfo());

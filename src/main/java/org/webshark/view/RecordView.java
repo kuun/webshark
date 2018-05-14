@@ -1,19 +1,12 @@
 package org.webshark.view;
 
 import de.saxsys.mvvmfx.FxmlView;
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.InjectViewModel;
-import de.saxsys.mvvmfx.ScopeProvider;
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
-import org.webshark.model.HeaderInfo;
 import org.webshark.model.HttpRecord;
-import org.webshark.scope.RecordPageScope;
 import org.webshark.viewmodel.RecordViewModel;
 
 import java.net.URL;

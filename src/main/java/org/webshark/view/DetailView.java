@@ -3,6 +3,7 @@ package org.webshark.view;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,6 +38,23 @@ public class DetailView implements FxmlView<DetailViewModel>, Initializable {
     @InjectViewModel
     private DetailViewModel viewModel;
 
+    private class DetailChangeListener implements ChangeListener {
+        private TableView table;
+
+        public DetailChangeListener(TableView table) {
+            this.table = table;
+        }
+
+        @Override
+        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            var height = table.fixedCellSizeProperty().get() * table.getItems().size() + 30;
+            if (height == 0) {
+                height = 48;
+            }
+            table.setPrefHeight(height);
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Callback<TableColumn.CellDataFeatures<HeaderInfo, String>, ObservableValue<String>> fieldNameCellFactory =
@@ -51,11 +69,14 @@ public class DetailView implements FxmlView<DetailViewModel>, Initializable {
         responseColFieldValue.setCellValueFactory(filedValueCellFactory);
 
         generalHeaderTable.itemsProperty().bind(viewModel.generalHeadersProperty());
+        generalHeaderTable.itemsProperty().addListener(new DetailChangeListener(generalHeaderTable));
         requestHeaderTable.itemsProperty().bind(viewModel.requestHeadersProperty());
+        requestHeaderTable.itemsProperty().addListener(new DetailChangeListener(requestHeaderTable));
         responseHeaderTable.itemsProperty().bind(viewModel.responseHeadersProperty());
-        autoSizeTable(generalHeaderTable);
-        autoSizeTable(requestHeaderTable);
-        autoSizeTable(responseHeaderTable);
+        responseHeaderTable.itemsProperty().addListener(new DetailChangeListener(responseHeaderTable));
+//        autoSizeTable(generalHeaderTable);
+//        autoSizeTable(requestHeaderTable);
+//        autoSizeTable(responseHeaderTable);
     }
 
     private void autoSizeTable(TableView table) {
