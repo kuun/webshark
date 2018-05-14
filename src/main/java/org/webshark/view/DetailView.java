@@ -2,13 +2,15 @@ package org.webshark.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Control;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import org.webshark.model.HeaderInfo;
 import org.webshark.viewmodel.DetailViewModel;
@@ -47,11 +49,20 @@ public class DetailView implements FxmlView<DetailViewModel>, Initializable {
 
         @Override
         public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-            var height = table.fixedCellSizeProperty().get() * table.getItems().size() + 30;
-            if (height == 0) {
-                height = 48;
-            }
-            table.setPrefHeight(height);
+            table.layout();
+        }
+    }
+
+    private static class CellFactory implements Callback<TableColumn<HeaderInfo, String>, TableCell<HeaderInfo, String>> {
+        @Override
+        public TableCell<HeaderInfo, String> call(TableColumn<HeaderInfo, String> param) {
+            var cell = new TableCell<HeaderInfo, String>();
+            var text = new Text();
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
+            text.wrappingWidthProperty().bind(cell.widthProperty());
+            text.textProperty().bind(cell.itemProperty());
+            return cell;
         }
     }
 
@@ -61,27 +72,26 @@ public class DetailView implements FxmlView<DetailViewModel>, Initializable {
             (info) -> info.getValue().fieldNameProperty();
         Callback<TableColumn.CellDataFeatures<HeaderInfo, String>, ObservableValue<String>> filedValueCellFactory =
             (info) -> info.getValue().fieldValueProperty();
+        var cellFactory = new CellFactory();
+
         generalColFieldName.setCellValueFactory(fieldNameCellFactory);
+        generalColFieldName.setCellFactory(cellFactory);
         generalColFieldValue.setCellValueFactory(filedValueCellFactory);
+        generalColFieldValue.setCellFactory(cellFactory);
         requestColFieldName.setCellValueFactory(fieldNameCellFactory);
+        requestColFieldName.setCellFactory(cellFactory);
         requestColFieldValue.setCellValueFactory(filedValueCellFactory);
+        requestColFieldValue.setCellFactory(cellFactory);
         responseColFieldName.setCellValueFactory(fieldNameCellFactory);
+        responseColFieldName.setCellFactory(cellFactory);
         responseColFieldValue.setCellValueFactory(filedValueCellFactory);
+        responseColFieldValue.setCellFactory(cellFactory);
 
         generalHeaderTable.itemsProperty().bind(viewModel.generalHeadersProperty());
-        generalHeaderTable.itemsProperty().addListener(new DetailChangeListener(generalHeaderTable));
+        // generalHeaderTable.itemsProperty().addListener(new DetailChangeListener(generalHeaderTable));
         requestHeaderTable.itemsProperty().bind(viewModel.requestHeadersProperty());
         requestHeaderTable.itemsProperty().addListener(new DetailChangeListener(requestHeaderTable));
         responseHeaderTable.itemsProperty().bind(viewModel.responseHeadersProperty());
         responseHeaderTable.itemsProperty().addListener(new DetailChangeListener(responseHeaderTable));
-//        autoSizeTable(generalHeaderTable);
-//        autoSizeTable(requestHeaderTable);
-//        autoSizeTable(responseHeaderTable);
-    }
-
-    private void autoSizeTable(TableView table) {
-        table.prefHeightProperty().bind(table.fixedCellSizeProperty().multiply(Bindings.size(table.getItems())).add(26));
-        table.minHeightProperty().bind(table.prefHeightProperty());
-        table.maxHeightProperty().bind(table.prefHeightProperty());
     }
 }
