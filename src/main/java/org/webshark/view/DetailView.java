@@ -6,10 +6,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Control;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
 import org.webshark.model.HeaderInfo;
@@ -20,23 +17,18 @@ import java.util.ResourceBundle;
 
 public class DetailView implements FxmlView<DetailViewModel>, Initializable {
     @FXML
-    private TableView generalHeaderTable;
+    private TableView generalHeaderTable, requestHeaderTable, responseHeaderTable;
     @FXML
-    private TableColumn<HeaderInfo, String> generalColFieldName;
+    private TableColumn<HeaderInfo, String> generalColFieldName,  generalColFieldValue;
     @FXML
-    private TableColumn<HeaderInfo, String> generalColFieldValue;
+    private TableColumn<HeaderInfo, String> requestColFieldName,  requestColFieldValue;
     @FXML
-    private TableView requestHeaderTable;
+    private TableColumn<HeaderInfo, String> responseColFieldName, responseColFieldValue;
     @FXML
-    private TableColumn<HeaderInfo, String> requestColFieldName;
+    private Accordion generalAccordion, requestAccordion, responseAccordion;
     @FXML
-    private TableColumn<HeaderInfo, String> requestColFieldValue;
-    @FXML
-    private TableView responseHeaderTable;
-    @FXML
-    private TableColumn<HeaderInfo, String> responseColFieldName;
-    @FXML
-    private TableColumn<HeaderInfo, String> responseColFieldValue;
+    private TitledPane generalPane, requestPane, responsePane;
+
     @InjectViewModel
     private DetailViewModel viewModel;
 
@@ -88,10 +80,14 @@ public class DetailView implements FxmlView<DetailViewModel>, Initializable {
         responseColFieldValue.setCellFactory(cellFactory);
 
         generalHeaderTable.itemsProperty().bind(viewModel.generalHeadersProperty());
-        // generalHeaderTable.itemsProperty().addListener(new DetailChangeListener(generalHeaderTable));
+        generalHeaderTable.itemsProperty().addListener(new DetailChangeListener(generalHeaderTable));
         requestHeaderTable.itemsProperty().bind(viewModel.requestHeadersProperty());
         requestHeaderTable.itemsProperty().addListener(new DetailChangeListener(requestHeaderTable));
         responseHeaderTable.itemsProperty().bind(viewModel.responseHeadersProperty());
         responseHeaderTable.itemsProperty().addListener(new DetailChangeListener(responseHeaderTable));
+
+        generalAccordion.setExpandedPane(generalPane);
+        requestAccordion.setExpandedPane(requestPane);
+        responseAccordion.setExpandedPane(responsePane);
     }
 }

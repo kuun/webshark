@@ -17,13 +17,13 @@
       <content>
         <VBox>
           <children>
-            <Accordion>
+            <Accordion fx:id="generalAccordion">
               <panes>
-                <TitledPane text="General">
+                <TitledPane fx:id="generalPane" text="General">
                   <content>
                     <AnchorPane>
                       <children>
-                        <FlowTableView fx:id="generalHeaderTable" fixedCellSize="0.0" AnchorPane.bottomAnchor="-10.0"
+                        <FlowTableView fx:id="generalHeaderTable" AnchorPane.bottomAnchor="-10.0"
                                        AnchorPane.leftAnchor="-10.0" AnchorPane.rightAnchor="-10.0"
                                        AnchorPane.topAnchor="-10.0">
                           <columns>
@@ -41,15 +41,15 @@
                 </TitledPane>
               </panes>
             </Accordion>
-            <Accordion>
+            <Accordion fx:id="responseAccordion">
               <panes>
-                <TitledPane expanded="false" text="Response Headers">
+                <TitledPane fx:id="responsePane" text="Response Headers">
                   <content>
                     <AnchorPane>
                       <children>
-                        <TableView fx:id="responseHeaderTable" fixedCellSize="24" prefHeight="48"
-                                   AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
-                                   AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                        <FlowTableView fx:id="responseHeaderTable"
+                                       AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
+                                       AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                           <columns>
                             <TableColumn fx:id="requestColFieldName" prefWidth="75.0" style="-fx-font-weight: bold;"
                                          text="Field name"/>
@@ -58,22 +58,22 @@
                           <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                           </columnResizePolicy>
-                        </TableView>
+                        </FlowTableView>
                       </children>
                     </AnchorPane>
                   </content>
                 </TitledPane>
               </panes>
             </Accordion>
-            <Accordion>
+            <Accordion fx:id="requestAccordion">
               <panes>
-                <TitledPane text="Request Headers">
+                <TitledPane fx:id="requestPane" text="Request Headers">
                   <content>
                     <AnchorPane>
                       <children>
-                        <TableView fx:id="requestHeaderTable" fixedCellSize="24" prefHeight="48"
-                                   AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
-                                   AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
+                        <FlowTableView fx:id="requestHeaderTable"
+                                       AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10.0"
+                                       AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="-10.0">
                           <columns>
                             <TableColumn fx:id="responseColFieldName" prefWidth="75.0" style="-fx-font-weight: bold;"
                                          text="Field name"/>
@@ -82,7 +82,7 @@
                           <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                           </columnResizePolicy>
-                        </TableView>
+                        </FlowTableView>
                       </children>
                     </AnchorPane>
                   </content>
