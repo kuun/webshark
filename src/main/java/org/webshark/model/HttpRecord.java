@@ -1,25 +1,20 @@
 package org.webshark.model;
 
-import io.netty.handler.codec.http.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.HttpHeaders;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 public class HttpRecord {
     private IntegerProperty id = new SimpleIntegerProperty();
     private BooleanProperty completed = new SimpleBooleanProperty(false);
-    private StringProperty method = new SimpleStringProperty();
-    private StringProperty url = new SimpleStringProperty();
-    private IntegerProperty statusCode = new SimpleIntegerProperty();
-    private HttpRequest req;
-    private HttpResponse res;
-    private List<HttpContent> reqContents;
-    private List<HttpContent> resContents;
+    private Request req;
+    private Response res = new Response();
+    private Content reqContent;
+    private Content resContent;
     private ProxyConf proxyConf;
+    private SimpleListProperty<HeaderInfo> generalInfo;
 
     public int getId() {
         return id.get();
@@ -45,40 +40,17 @@ public class HttpRecord {
         this.completed.set(completed);
     }
 
-    public String getMethod() {
-        return method.get();
-    }
 
     public StringProperty methodProperty() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method.set(method);
-    }
-
-    public String getUrl() {
-        return url.get();
+        return req.methodProperty();
     }
 
     public StringProperty urlProperty() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url.set(url);
-    }
-
-    public int getStatusCode() {
-        return statusCode.get();
+        return req.urlProperty();
     }
 
     public IntegerProperty statusCodeProperty() {
-        return statusCode;
-    }
-
-    public void setStatusCode(int statusCode) {
-        this.statusCode.set(statusCode);
+        return res.statusCodeProperty();
     }
 
     public ProxyConf getProxyConf() {
@@ -90,104 +62,87 @@ public class HttpRecord {
         return this;
     }
 
-    public HttpRequest getReq() {
+    public Request getReq() {
         return req;
     }
 
-    public HttpRecord setReq(HttpRequest req) {
+    public HttpRecord setReq(Request req) {
         this.req = req;
-        setMethod(req.method().name());
-        setUrl(req.uri());
         return this;
     }
 
-    public HttpResponse getRes() {
+    public Response getRes() {
         return res;
     }
 
-    public HttpRecord setRes(HttpResponse res) {
-        this.res = res;
-        setStatusCode(res.status().code());
+    public HttpRecord setRes(Response res) {
+        this.res.copy(res);
+        if (generalInfo != null) {
+            for (var header : generalInfo) {
+                if (header.getFieldName().equals("Status Code")) {
+                    header.setFieldValue(Integer.toString(res.getStatusCode()));
+                }
+            }
+        }
         return this;
     }
 
-    public List<HttpContent> getReqContents() {
-        return reqContents;
-    }
-
-    public List<HttpContent> getResContents() {
-        return resContents;
-    }
-
-    public void addReqContent(HttpContent content) {
-        if (reqContents == null) {
-            if (content != LastHttpContent.EMPTY_LAST_CONTENT) {
-                reqContents = new LinkedList<>();
-            }
-        }
-        if (reqContents != null) {
-            reqContents.add(content);
-        }
-    }
-
-    public void addResContent(HttpContent content) {
-        if (resContents == null) {
-            if (content != LastHttpContent.EMPTY_LAST_CONTENT) {
-                resContents = new LinkedList<>();
-            }
-        }
-        if (resContents != null) {
-            resContents.add(content);
-        }
-    }
-
-    public ObservableList<HeaderInfo> getGeneralHeaderInfo() {
-        ObservableList<HeaderInfo> infos = FXCollections.observableArrayList();
+    public SimpleListProperty<HeaderInfo> generalInfoProperty() {
+        generalInfo = new SimpleListProperty<>(FXCollections.observableArrayList());
 
         var info = new HeaderInfo();
         info.setFieldName("Request Method");
-        info.setFieldValue(req.method().name());
-        infos.add(info);
+        info.setFieldValue(req.getMethod());
+        generalInfo.add(info);
 
         info = new HeaderInfo();
         info.setFieldName("Request URL");
-        info.setFieldValue(req.uri());
-        infos.add(info);
+        info.setFieldValue(req.getUrl());
+        generalInfo.add(info);
 
         if (res != null) {
             info = new HeaderInfo();
             info.setFieldName("Status Code");
-            info.setFieldValue(res.status().toString());
-            infos.add(info);
+            info.setFieldValue(Integer.toString(res.getStatusCode()));
+            generalInfo.add(info);
         }
 
         info = new HeaderInfo();
         info.setFieldName("Proxy Server");
         info.setFieldValue(proxyConf.getProxyAddr());
-        infos.add(info);
+        generalInfo.add(info);
 
         info = new HeaderInfo();
         info.setFieldName("Target Server");
         info.setFieldValue(proxyConf.getTargetAddr());
-        infos.add(info);
-
-        return infos;
+        generalInfo.add(info);
+        return generalInfo;
     }
 
-    public ObservableList<HeaderInfo> getRequestHeaderInfo() {
-        ObservableList<HeaderInfo> infos = FXCollections.observableArrayList();
-
-        collectHeaderInfo(req.headers(), infos);
-        return infos;
+    public ListProperty<HeaderInfo> requestInfoProperty() {
+        return req.headersProperty();
     }
 
-    public ObservableList<HeaderInfo> getResponseHeaderInfo() {
-        ObservableList<HeaderInfo> infos = FXCollections.observableArrayList();
+    public ListProperty<HeaderInfo> responseInfoProperty() {
+        return res.headersProperty();
+    }
 
-        if (res != null) {
-            collectHeaderInfo(res.headers(), infos);
+    public void cleanInfo() {
+        generalInfo = null;
+    }
+
+    public void addReqContentBuffer(ByteBuf buf) {
+        if (reqContent == null) {
+            reqContent = new Content();
         }
-        return infos;
+        reqContent.addBuffer(buf);
+    }
+
+    public void addResContentBuffer(ByteBuf buf) {
+        if (resContent == null) {
+            resContent = new Content();
+        }
+        resContent.addBuffer(buf);
     }
 
     private void collectHeaderInfo(HttpHeaders headers, ObservableList<HeaderInfo> headerInfos) {

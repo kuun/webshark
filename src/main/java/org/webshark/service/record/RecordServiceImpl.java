@@ -1,16 +1,16 @@
 package org.webshark.service.record;
 
 import com.google.inject.Singleton;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webshark.model.HttpRecord;
 import org.webshark.model.ProxyConf;
+import org.webshark.model.Request;
+import org.webshark.model.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,8 @@ class RecordServiceImpl implements IRecordService {
         var id = nextId.getAndAdd(1);
         var record = new HttpRecord();
         record.setId(id);
-        record.setReq(req);
+        var reqInfo = new Request(req);
+        record.setReq(reqInfo);
         record.setProxyConf(proxyConf);
         records.add(record);
         incompleteRecordMap.put(id, record);
@@ -43,7 +44,10 @@ class RecordServiceImpl implements IRecordService {
             log.error("can't find incompleted record, id: {}", recordId);
             return;
         }
-        record.addReqContent(content);
+        var buf = getContentBuffer(content);
+        if (buf != null) {
+            record.addReqContentBuffer(buf);
+        }
     }
 
     @Override
@@ -53,7 +57,8 @@ class RecordServiceImpl implements IRecordService {
             log.error("can't find incompleted record, id: {}", recordId);
             return;
         }
-        record.setRes(res);
+        var resInfo = new Response(res);
+        record.setRes(resInfo);
     }
 
     @Override
@@ -63,7 +68,10 @@ class RecordServiceImpl implements IRecordService {
             log.error("can't find incompleted record, id: {}", recordId);
             return;
         }
-        record.addResContent(content);
+        var buf = getContentBuffer(content);
+        if (buf != null) {
+            record.addResContentBuffer(buf);
+        }
         if (content == LastHttpContent.EMPTY_LAST_CONTENT) {
             log.debug("record is completed, record: {}", recordId);
             record.setCompleted(true);
@@ -74,5 +82,19 @@ class RecordServiceImpl implements IRecordService {
     @Override
     public ObservableList<HttpRecord> getRecords() {
         return records;
+    }
+
+    private ByteBuf getContentBuffer(HttpContent content) {
+        ByteBuf buf = null;
+        if (content instanceof DefaultHttpContent) {
+            var tmp = (DefaultHttpContent)content;
+            buf = tmp.content().retain();
+        } else if (content instanceof LastHttpContent) {
+            var tmp = (LastHttpContent)content;
+            if (tmp != LastHttpContent.EMPTY_LAST_CONTENT) {
+                buf = tmp.content().retain();
+            }
+        }
+        return buf;
     }
 }

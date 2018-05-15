@@ -19,9 +19,9 @@ public class DetailViewModel implements ViewModel {
     public void initialize() {
         scope.subscribe(RecordPageScope.Notification.FOCUSED_RECORD_CHANGED.name(), (key, payload) -> {
             var record = (HttpRecord) payload[0];
-            generalHeaders.setValue(record.getGeneralHeaderInfo());
-            requestHeaders.setValue(record.getRequestHeaderInfo());
-            responseHeaders.setValue(record.getResponseHeaderInfo());
+            generalHeaders.setValue(record.generalInfoProperty());
+            requestHeaders.setValue(record.requestInfoProperty());
+            responseHeaders.setValue(record.responseInfoProperty());
         });
     }
 
