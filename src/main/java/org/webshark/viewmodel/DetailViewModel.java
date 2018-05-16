@@ -23,9 +23,9 @@ public class DetailViewModel implements ViewModel {
             if (oldRecord != null) {
                 oldRecord.cleanInfo();
             }
-            generalHeaders.setValue(newRecord.generalInfoProperty());
-            requestHeaders.setValue(newRecord.requestInfoProperty());
-            responseHeaders.setValue(newRecord.responseInfoProperty());
+            generalHeaders.bind(newRecord.generalInfoProperty());
+            requestHeaders.bind(newRecord.requestInfoProperty());
+            responseHeaders.bind(newRecord.responseInfoProperty());
         });
     }
 

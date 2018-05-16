@@ -3,6 +3,7 @@ package org.webshark.service.record;
 import com.google.inject.Singleton;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -31,22 +32,24 @@ class RecordServiceImpl implements IRecordService {
         var reqInfo = new Request(req);
         record.setReq(reqInfo);
         record.setProxyConf(proxyConf);
-        records.add(record);
         incompleteRecordMap.put(id, record);
+        Platform.runLater(() -> {
+            records.add(record);
+        });
         log.debug("create record: {}", id);
         return id;
     }
 
     @Override
     public void recordRequestContent(int recordId, HttpContent content) {
-        var record = incompleteRecordMap.get(recordId);
+        final var record = incompleteRecordMap.get(recordId);
         if (record == null) {
             log.error("can't find incompleted record, id: {}", recordId);
             return;
         }
         var buf = getContentBuffer(content);
         if (buf != null) {
-            record.addReqContentBuffer(buf);
+            Platform.runLater(() -> record.addReqContentBuffer(buf));
         }
     }
 
@@ -58,7 +61,7 @@ class RecordServiceImpl implements IRecordService {
             return;
         }
         var resInfo = new Response(res);
-        record.setRes(resInfo);
+        Platform.runLater(() -> record.setRes(resInfo));
     }
 
     @Override
@@ -70,7 +73,7 @@ class RecordServiceImpl implements IRecordService {
         }
         var buf = getContentBuffer(content);
         if (buf != null) {
-            record.addResContentBuffer(buf);
+            Platform.runLater(() -> record.addResContentBuffer(buf));
         }
         if (content == LastHttpContent.EMPTY_LAST_CONTENT) {
             log.debug("record is completed, record: {}", recordId);
