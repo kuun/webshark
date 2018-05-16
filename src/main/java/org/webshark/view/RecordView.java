@@ -42,7 +42,7 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
 
         recordTable.getFocusModel().focusedItemProperty().addListener(((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                viewModel.onFocusRecord(newValue);
+                viewModel.onFocusRecord(oldValue, newValue);
             }
         }));
     }

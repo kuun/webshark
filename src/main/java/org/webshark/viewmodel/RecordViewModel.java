@@ -24,7 +24,7 @@ public class RecordViewModel implements ViewModel {
         return recordService.getRecords();
     }
 
-    public void onFocusRecord(HttpRecord record) {
-        scope.publish(RecordPageScope.Notification.FOCUSED_RECORD_CHANGED.name(), record);
+    public void onFocusRecord(HttpRecord oldValue, HttpRecord newValue) {
+        scope.publish(RecordPageScope.Notification.FOCUSED_RECORD_CHANGED.name(), oldValue, newValue);
     }
 }
