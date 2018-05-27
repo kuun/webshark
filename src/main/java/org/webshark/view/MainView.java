@@ -29,7 +29,7 @@ public class MainView extends AnchorPane implements JavaView<MainViewModel>, Ini
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        var viewTuple = FluentViewLoader.fxmlView(ProxyStartView.class).load();
+        var viewTuple = FluentViewLoader.fxmlView(StartView.class).load();
         setNewNode(viewTuple.getView());
 
         notificationCenter.subscribe(Notification.PROXY_STARTED.name(), (key, payload) -> {
