@@ -12,11 +12,13 @@ import javafx.collections.ObservableList;
 public class Request {
     private StringProperty method = new SimpleStringProperty();
     private StringProperty url = new SimpleStringProperty();
+    private StringProperty host = new SimpleStringProperty();
     private ListProperty<HeaderInfo> headers = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     public Request(HttpRequest req) {
         method.set(req.method().name());
         url.set(req.uri());
+        host.set(req.headers().get("Host"));
         for (var header : req.headers()) {
             var info = new HeaderInfo();
             info.setFieldName(header.getKey());
@@ -47,6 +49,18 @@ public class Request {
 
     public void setUrl(String url) {
         this.url.set(url);
+    }
+
+    public String getHost() {
+        return host.get();
+    }
+
+    public StringProperty hostProperty() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host.set(host);
     }
 
     public ObservableList<HeaderInfo> getHeaders() {

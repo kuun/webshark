@@ -1,12 +1,13 @@
 package org.webshark.model;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.Objects;
 
 public class ProxyConf {
-    private SimpleStringProperty proxyAddr = new SimpleStringProperty();
-    private SimpleStringProperty targetAddr = new SimpleStringProperty();
+    private SimpleStringProperty proxyAddr = new SimpleStringProperty("127.0.0.1");
+    private SimpleIntegerProperty proxyPort = new SimpleIntegerProperty();
 
     public String getProxyAddr() {
         return proxyAddr.get();
@@ -20,16 +21,16 @@ public class ProxyConf {
         return proxyAddr;
     }
 
-    public String getTargetAddr() {
-        return targetAddr.get();
+    public int getProxyPort() {
+        return proxyPort.get();
     }
 
-    public void setTargetAddr(String targetAddr) {
-        this.targetAddr.set(targetAddr);
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort.set(proxyPort);
     }
 
-    public SimpleStringProperty targetAddrProperty() {
-        return targetAddr;
+    public SimpleIntegerProperty proxyPortProperty() {
+        return proxyPort;
     }
 
     @Override
@@ -38,19 +39,19 @@ public class ProxyConf {
         if (o == null || getClass() != o.getClass()) return false;
         ProxyConf proxyConf = (ProxyConf) o;
         return Objects.equals(proxyAddr, proxyConf.proxyAddr) &&
-            Objects.equals(targetAddr, proxyConf.targetAddr);
+            Objects.equals(proxyPort, proxyConf.proxyPort);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(proxyAddr, targetAddr);
+        return Objects.hash(proxyAddr, proxyPort);
     }
 
     @Override
     public String toString() {
         return "ProxyConf{" +
             "proxyAddr='" + proxyAddr + '\'' +
-            ", targetAddr='" + targetAddr + '\'' +
+            ", proxyPort='" + proxyPort + '\'' +
             '}';
     }
 }

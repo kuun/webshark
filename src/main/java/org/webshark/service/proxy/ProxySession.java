@@ -12,22 +12,25 @@ import org.slf4j.LoggerFactory;
 import org.webshark.model.ProxyConf;
 import org.webshark.service.record.IRecordService;
 
-import java.net.HttpCookie;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
     private static final Logger log = LoggerFactory.getLogger(ProxySession.class);
     private Bootstrap clientBootstrap;
     private ProxyConf proxyConf;
-    private SocketAddress targetAddr;
-    private String targetHost;
     private Channel proxyChannel;
-    private Channel targetChannel;
     private TargetWriteListener targetWriteListener = new TargetWriteListener();
     private ProxyWriteListener proxyWriteListener = new ProxyWriteListener();
     @Inject
     private IRecordService recordService;
     private int currentRecordId;
+    private Map<String, Channel> targetChannels = new HashMap<>();
+    private Channel currentTargetChannel = null;
+    private String currentTargetHost = null;
 
 
     // reads message from target server, then writes to the client.
@@ -58,8 +61,8 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
                 proxyChannel.read();
             } else {
                 log.error("failed to write target channel, target host: {}, error: {}",
-                    targetHost, ThrowableUtil.stackTraceToString(future.cause()));
-                targetChannel.close();
+                    currentTargetHost, ThrowableUtil.stackTraceToString(future.cause()));
+                currentTargetChannel.close();
                 proxyChannel.close();
             }
         }
@@ -69,12 +72,12 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
             if (future.isSuccess()) {
-                targetChannel.read();
+                currentTargetChannel.read();
             } else {
                 log.error("failed to write proxy channel, client: {}, error: {}",
                     proxyChannel.remoteAddress(), ThrowableUtil.stackTraceToString(future.cause()));
                 proxyChannel.close();
-                targetChannel.close();
+                currentTargetChannel.close();
             }
         }
     }
@@ -86,16 +89,6 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
 
     public ProxySession setProxyConf(ProxyConf proxyConf) {
         this.proxyConf = proxyConf;
-        return this;
-    }
-
-    public ProxySession setTargetAddr(SocketAddress targetAddr) {
-        this.targetAddr = targetAddr;
-        return this;
-    }
-
-    public ProxySession setTargetHost(String targetHost) {
-        this.targetHost = targetHost;
         return this;
     }
 
@@ -116,13 +109,28 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         if (msg instanceof HttpRequest) {
             // todo: record message
             var req = (HttpRequest)msg;
-            req.headers().set("Host", targetHost);
-            connectTargret(req);
+            var uri = req.uri();
+            var url = new URL(uri);
+            req.setUri(url.getPath());
+            var host = req.headers().get("Host");
+            currentTargetHost = host;
+            var targetChannel = targetChannels.get(host);
             currentRecordId = recordService.recordRequest(proxyConf, req);
+            if (targetChannel == null) {
+                connectTargret(req, host);
+                return;
+            }
+            if (!targetChannel.isActive()) {
+                targetChannels.remove(host);
+                connectTargret(req, host);
+                return;
+            }
+            currentTargetChannel = targetChannel;
+            currentTargetChannel.writeAndFlush(req).addListener(targetWriteListener);
         }else if (msg instanceof HttpContent){
             if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
                 ((HttpContent)msg).retain();
-                targetChannel.writeAndFlush(msg).addListener(targetWriteListener);
+                currentTargetChannel.writeAndFlush(msg).addListener(targetWriteListener);
             }
             recordService.recordRequestContent(currentRecordId, (HttpContent)msg);
         } else {
@@ -130,26 +138,42 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         }
     }
 
-    private void connectTargret(HttpRequest req) {
+    private void connectTargret(HttpRequest req, String host) {
+        var targetAddr = parseTargetAddr(host);
         var channelFuture = clientBootstrap.connect(targetAddr).addListener(new GenericFutureListener<Future<? super Void>>() {
             @Override
             public void operationComplete(Future<? super Void> future) throws Exception {
                 if (future.isSuccess()) {
-                    log.debug("connected to target host: {}", targetHost);
-                    targetChannel.pipeline().addLast(new TargetChannelHandler());
+                    log.debug("connected to target host: {}", host);
+                    currentTargetChannel.pipeline().addLast(new TargetChannelHandler());
                     // send request message to target server
-                    targetChannel.writeAndFlush(req).addListener(targetWriteListener);
-                    targetChannel.read();
+                    currentTargetChannel.writeAndFlush(req).addListener(targetWriteListener);
+                    currentTargetChannel.read();
                 } else {
                     log.debug("failed to connnect to target server: {}, error: {}",
-                        targetHost, ThrowableUtil.stackTraceToString(future.cause()));
+                        host, ThrowableUtil.stackTraceToString(future.cause()));
                     var res = new DefaultHttpResponse(req.protocolVersion(), HttpResponseStatus.BAD_GATEWAY);
                     proxyChannel.writeAndFlush(res);
                     proxyChannel.close();
-                    targetChannel.close();
+                    currentTargetChannel.close();
+                    currentTargetChannel = null;
                 }
             }
         });
-        targetChannel = channelFuture.channel();
+        currentTargetChannel = channelFuture.channel();
+        targetChannels.put(host, currentTargetChannel);
+    }
+
+    private SocketAddress parseTargetAddr(String host) {
+        String targetHost;
+        int targetPort;
+        var tmp = host.split(":");
+        targetHost = tmp[0];
+        if (tmp.length == 1) {
+            targetPort = 80;
+        } else {
+            targetPort = Integer.parseInt(tmp[1]);
+        }
+        return new InetSocketAddress(targetHost, targetPort);
     }
 }

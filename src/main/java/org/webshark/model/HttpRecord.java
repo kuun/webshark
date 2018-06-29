@@ -114,7 +114,7 @@ public class HttpRecord {
 
         info = new HeaderInfo();
         info.setFieldName("Target Server");
-        info.setFieldValue(proxyConf.getTargetAddr());
+        info.setFieldValue(req.getHost());
         generalInfo.add(info);
         return generalInfo;
     }

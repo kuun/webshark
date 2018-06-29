@@ -26,8 +26,6 @@ class ProxyServer {
     private ServerBootstrap serverBootstrap;
     private Bootstrap clientBootstrap;
     private ChannelFuture channelFuture;
-    private SocketAddress targetAddr;
-    private String targetHost;
 
     public ProxyServer(ProxyConf conf, EventLoopGroup eventLoopGroup) {
         this.conf = conf;
@@ -47,44 +45,22 @@ class ProxyServer {
         return conf;
     }
 
-    public void start() throws MalformedURLException {
-        var proxyUrl = new URL(conf.getProxyAddr());
-        var proto = proxyUrl.getProtocol();
-        var proxyPort = proxyUrl.getPort();
-        if (proxyPort == -1) {
-            proxyPort = proxyUrl.getDefaultPort();
-        }
-        var laddr = new InetSocketAddress(proxyUrl.getHost(), proxyPort);
-
-        var targetUrl = new URL(conf.getTargetAddr());
-        var targetPort = targetUrl.getPort();
-        if (targetPort == -1) {
-            targetPort = targetUrl.getDefaultPort();
-        }
-        targetAddr = new InetSocketAddress(targetUrl.getHost(), targetPort);
-        if (targetPort == 80) {
-            targetHost = targetUrl.getHost();
-        } else {
-            targetHost = targetUrl.getHost() + ":" + targetPort;
-        }
+    public void start() {
+        var laddr = new InetSocketAddress(conf.getProxyAddr(), conf.getProxyPort());
 
         serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 var pipeline = ch.pipeline();
 
-                if (proto.equalsIgnoreCase("http")) {
-                    pipeline.addLast(
-                        new HttpRequestDecoder(),
-                        new HttpResponseEncoder()
-                    );
-                }
+                pipeline.addLast(
+                    new HttpRequestDecoder(),
+                    new HttpResponseEncoder()
+                );
                 // add proxy session to channel pipeline.
                 var session = App.injector.getInstance(ProxySession.class);
                 session.setClientBootstrap(clientBootstrap)
-                    .setProxyConf(conf)
-                    .setTargetAddr(targetAddr)
-                    .setTargetHost(targetHost);
+                    .setProxyConf(conf);
                 pipeline.addLast(session);
             }
         });
