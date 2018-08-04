@@ -4,16 +4,10 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.util.Callback;
 import org.webshark.model.HeaderInfo;
 import org.webshark.viewmodel.DetailViewModel;
 
@@ -22,123 +16,60 @@ import java.util.ResourceBundle;
 
 public class DetailView implements FxmlView<DetailViewModel>, Initializable {
     @FXML
-    private ListView<HeaderInfo> generalHeaderList;
+    private TreeTableView<HeaderInfo> headerInfoTree;
     @FXML
-    private TableView requestHeaderTable, responseHeaderTable;
+    private TreeTableColumn<HeaderInfo, String> colHeaderName;
     @FXML
-    private TableColumn<HeaderInfo, String> generalColFieldName,  generalColFieldValue;
-    @FXML
-    private TableColumn<HeaderInfo, String> requestColFieldName,  requestColFieldValue;
-    @FXML
-    private TableColumn<HeaderInfo, String> responseColFieldName, responseColFieldValue;
-    @FXML
-    private Accordion generalAccordion, requestAccordion, responseAccordion;
-    @FXML
-    private TitledPane generalPane, requestPane, responsePane;
+    private TreeTableColumn<HeaderInfo, String> colHeaderValue;
 
     @InjectViewModel
     private DetailViewModel viewModel;
 
-    private class DetailChangeListener implements ChangeListener {
-        private TableView table;
+    private static class DetailChangeListener implements ChangeListener<ObservableList<HeaderInfo>> {
+        private TreeItem<HeaderInfo> node;
 
-        public DetailChangeListener(TableView table) {
-            this.table = table;
+        public DetailChangeListener(TreeItem<HeaderInfo> node) {
+            this.node = node;
         }
 
         @Override
-        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-            table.layout();
-        }
-    }
-
-    private class InfoChangeListener implements ChangeListener {
-        private ListView table;
-
-        public InfoChangeListener(ListView table) {
-            this.table = table;
-        }
-
-        @Override
-        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-            var height = table.fixedCellSizeProperty().get() * table.getItems().size() + 20;
-            if (height == 0) {
-                height = 24;
-            }
-            table.setPrefHeight(height);
-        }
-    }
-
-    private static class CellFactory implements Callback<TableColumn<HeaderInfo, String>, TableCell<HeaderInfo, String>> {
-        @Override
-        public TableCell<HeaderInfo, String> call(TableColumn<HeaderInfo, String> param) {
-            var cell = new TableCell<HeaderInfo, String>();
-            var text = new Text();
-            cell.setGraphic(text);
-            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
-            text.wrappingWidthProperty().bind(cell.widthProperty());
-            text.textProperty().bind(cell.itemProperty());
-            return cell;
-        }
-    }
-
-    private static class HeaderInfoCell extends ListCell<HeaderInfo> {
-        static final Font boldFont = Font.font(Font.getDefault().getFamily(), FontWeight.BOLD, Font.getDefault().getSize());
-        @Override
-        protected void updateItem(HeaderInfo item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (empty || item == null) {
-                setText(null);
-                setGraphic(null);
-            } else {
-                var pane = new StackPane();
-                TextFlow textFlow = new TextFlow();
-                textFlow.setPrefWidth(Region.USE_COMPUTED_SIZE);
-                var nameText = new Label(item.getFieldName() + " : ");
-                nameText.setFont(boldFont);
-                var valueText = new Label(item.getFieldValue());
-                valueText.setEllipsisString("...");
-                valueText.setPrefWidth(Region.USE_PREF_SIZE);
-                textFlow.getChildren().addAll(nameText, valueText);
-                // pane.getChildren().add(textFlow);
-                setGraphic(textFlow);
+        public void changed(ObservableValue<? extends ObservableList<HeaderInfo>> observable, ObservableList<HeaderInfo> oldValue, ObservableList<HeaderInfo> newValue) {
+            var children = node.getChildren();
+            children.clear();
+            for (HeaderInfo headerInfo : newValue) {
+                TreeItem<HeaderInfo> item = new TreeItem<>(headerInfo);
+                children.add(item);
             }
         }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Callback<TableColumn.CellDataFeatures<HeaderInfo, String>, ObservableValue<String>> fieldNameCellFactory =
-            (info) -> info.getValue().fieldNameProperty();
-        Callback<TableColumn.CellDataFeatures<HeaderInfo, String>, ObservableValue<String>> filedValueCellFactory =
-            (info) -> info.getValue().fieldValueProperty();
-        var cellFactory = new CellFactory();
+        colHeaderName.setCellValueFactory((info) -> info.getValue().getValue().fieldNameProperty());
+        colHeaderValue.setCellValueFactory((info) -> info.getValue().getValue().fieldValueProperty());
+        TreeItem<HeaderInfo> root = new TreeItem<>();
+        TreeItem<HeaderInfo> generalHeaders = new TreeItem<>();
+        TreeItem<HeaderInfo> requestHeaders = new TreeItem<>();
+        TreeItem<HeaderInfo> responseHeaders = new TreeItem<>();
+        HeaderInfo info = new HeaderInfo();
+        info.setFieldName("General Headers");
+        generalHeaders.setValue(info);
+        generalHeaders.setExpanded(true);
+        info = new HeaderInfo();
+        info.setFieldName("Request Headers");
+        requestHeaders.setValue(info);
+        requestHeaders.setExpanded(true);
+        info = new HeaderInfo();
+        info.setFieldName("Response Headers");
+        responseHeaders.setValue(info);
+        responseHeaders.setExpanded(true);
+        root.getChildren().addAll(generalHeaders, requestHeaders, responseHeaders);
 
-//        generalColFieldName.setCellValueFactory(fieldNameCellFactory);
-//        generalColFieldName.setCellFactory(cellFactory);
-//        generalColFieldValue.setCellValueFactory(filedValueCellFactory);
-//        generalColFieldValue.setCellFactory(cellFactory);
-        requestColFieldName.setCellValueFactory(fieldNameCellFactory);
-        requestColFieldName.setCellFactory(cellFactory);
-        requestColFieldValue.setCellValueFactory(filedValueCellFactory);
-        requestColFieldValue.setCellFactory(cellFactory);
-        responseColFieldName.setCellValueFactory(fieldNameCellFactory);
-        responseColFieldName.setCellFactory(cellFactory);
-        responseColFieldValue.setCellValueFactory(filedValueCellFactory);
-        responseColFieldValue.setCellFactory(cellFactory);
+        headerInfoTree.setShowRoot(false);
+        headerInfoTree.setRoot(root);
 
-        generalHeaderList.itemsProperty().bind(viewModel.generalHeadersProperty());
-        generalHeaderList.setCellFactory((list) -> new HeaderInfoCell());
-        generalHeaderList.itemsProperty().addListener(new InfoChangeListener(generalHeaderList));
-//        generalHeaderList.itemsProperty().addListener(new DetailChangeListener(generalHeaderList));
-        requestHeaderTable.itemsProperty().bind(viewModel.requestHeadersProperty());
-        requestHeaderTable.itemsProperty().addListener(new DetailChangeListener(requestHeaderTable));
-        responseHeaderTable.itemsProperty().bind(viewModel.responseHeadersProperty());
-        responseHeaderTable.itemsProperty().addListener(new DetailChangeListener(responseHeaderTable));
-
-        generalAccordion.setExpandedPane(generalPane);
-        requestAccordion.setExpandedPane(requestPane);
-        responseAccordion.setExpandedPane(responsePane);
+        viewModel.generalHeadersProperty().addListener(new DetailChangeListener(generalHeaders));
+        viewModel.requestHeadersProperty().addListener(new DetailChangeListener(requestHeaders));
+        viewModel.responseHeadersProperty().addListener(new DetailChangeListener(responseHeaders));
     }
 }
