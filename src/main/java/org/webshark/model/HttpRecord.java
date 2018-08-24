@@ -1,20 +1,17 @@
 package org.webshark.model;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpHeaders;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 public class HttpRecord {
     private IntegerProperty id = new SimpleIntegerProperty();
     private BooleanProperty completed = new SimpleBooleanProperty(false);
     private Request req;
     private Response res = new Response();
-    private Content reqContent;
-    private Content resContent;
     private ProxyConf proxyConf;
     private SimpleListProperty<HeaderInfo> generalInfo;
+
 
     public int getId() {
         return id.get();
@@ -132,25 +129,10 @@ public class HttpRecord {
     }
 
     public void addReqContentBuffer(ByteBuf buf) {
-        if (reqContent == null) {
-            reqContent = new Content();
-        }
-        reqContent.addBuffer(buf);
+        req.addContentBuffer(buf);
     }
 
     public void addResContentBuffer(ByteBuf buf) {
-        if (resContent == null) {
-            resContent = new Content();
-        }
-        resContent.addBuffer(buf);
-    }
-
-    private void collectHeaderInfo(HttpHeaders headers, ObservableList<HeaderInfo> headerInfos) {
-        for (var header : headers) {
-            var info = new HeaderInfo();
-            info.setFieldName(header.getKey());
-            info.setFieldValue(header.getValue());
-            headerInfos.add(info);
-        }
+        res.addContentBuffer(buf);
     }
 }

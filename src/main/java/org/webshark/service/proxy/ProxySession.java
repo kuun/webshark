@@ -39,18 +39,17 @@ class ProxySession extends SimpleChannelInboundHandler<HttpObject> {
         protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
             // log.debug("response message: {}", msg);
             if (msg instanceof HttpResponse) {
-                proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
                 recordService.recordResponse(currentRecordId, (HttpResponse)msg);
+                proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
             } else if (msg instanceof HttpContent) {
+                recordService.recordResponseContent(currentRecordId, (HttpContent)msg);
                 if (msg != LastHttpContent.EMPTY_LAST_CONTENT) {
                     ((HttpContent)msg).retain();
-                    proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
                 }
-                recordService.recordResponseContent(currentRecordId, (HttpContent)msg);
+                proxyChannel.writeAndFlush(msg).addListener(proxyWriteListener);
             } else {
                 log.error("unsupported http message: {}", msg);
             }
-
         }
     }
 

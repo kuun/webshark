@@ -1,6 +1,6 @@
 package org.webshark.model;
 
-import com.cathive.fx.guice.FXMLController;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpRequest;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -13,12 +13,15 @@ public class Request {
     private StringProperty method = new SimpleStringProperty();
     private StringProperty url = new SimpleStringProperty();
     private StringProperty host = new SimpleStringProperty();
+    private StringProperty contentType = new SimpleStringProperty();
     private ListProperty<HeaderInfo> headers = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private Content content = new Content();
 
     public Request(HttpRequest req) {
         method.set(req.method().name());
         url.set(req.uri());
         host.set(req.headers().get("Host"));
+        contentType.setValue(req.headers().get("Content-Type"));
         for (var header : req.headers()) {
             var info = new HeaderInfo();
             info.setFieldName(header.getKey());
@@ -63,6 +66,18 @@ public class Request {
         this.host.set(host);
     }
 
+    public String getContentType() {
+        return contentType.get();
+    }
+
+    public StringProperty contentTypeProperty() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType.set(contentType);
+    }
+
     public ObservableList<HeaderInfo> getHeaders() {
         return headers.get();
     }
@@ -93,5 +108,13 @@ public class Request {
                 return;
             }
         }
+    }
+
+    public void addContentBuffer(ByteBuf buf) {
+        content.addBuffer(buf);
+    }
+
+    public Content getContent() {
+        return content;
     }
 }

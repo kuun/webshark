@@ -4,6 +4,7 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.webshark.model.HttpRecord;
@@ -29,6 +30,15 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
     @FXML
     private TableColumn<HttpRecord, Float> colTime;
 
+    @FXML
+    private Node reqBodyView;
+    @FXML
+    private BodyView reqBodyViewController;
+    @FXML
+    private Node resBodyView;
+    @FXML
+    private BodyView resBodyViewController;
+
     @InjectViewModel
     private RecordViewModel viewModel;
 
@@ -45,6 +55,8 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
                 viewModel.onFocusRecord(oldValue, newValue);
             }
         }));
+        reqBodyViewController.setRequest(true);
+        resBodyViewController.setRequest(false);
     }
 
 }

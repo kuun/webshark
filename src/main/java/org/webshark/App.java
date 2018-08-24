@@ -29,4 +29,9 @@ public class App extends MvvmfxGuiceApplication {
     public static void main(String[] args) {
         launch(args);
     }
+
+    @Override
+    public void stopMvvmfx() throws Exception {
+        System.exit(0);
+    }
 }

@@ -31,14 +31,14 @@
                 <fx:include source="DetailView.fxml"/>
               </content>
             </Tab>
-            <Tab text="Response body">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0"/>
-              </content>
-            </Tab>
             <Tab text="Reqeust body">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0"/>
+                <fx:include fx:id="reqBodyView" source="BodyView.fxml"/>
+              </content>
+            </Tab>
+            <Tab text="Response body">
+              <content>
+                <fx:include fx:id="resBodyView" source="BodyView.fxml" />
               </content>
             </Tab>
           </tabs>
