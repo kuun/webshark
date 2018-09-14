@@ -2,11 +2,13 @@ package org.webshark.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.util.StringConverter;
 import org.webshark.model.HttpRecord;
 import org.webshark.viewmodel.RecordViewModel;
 
@@ -49,6 +51,28 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
         colMethod.setCellValueFactory((record) -> record.getValue().methodProperty());
         colUrl.setCellValueFactory((record) -> record.getValue().urlProperty());
         colStatus.setCellValueFactory((record) -> record.getValue().statusCodeProperty().asObject());
+        colType.setCellValueFactory((record) -> {
+            var contentTypeFull = record.getValue().getRes().contentTypeProperty();
+            var contentType = new SimpleStringProperty();
+            contentType.bindBidirectional(contentTypeFull, new StringConverter<String>() {
+                @Override
+                public String toString(String object) {
+                    if (object == null) return null;
+                    int end = object.indexOf(';');
+                    if (end == -1) {
+                        return object;
+                    } else {
+                        return object.substring(0, end);
+                    }
+                }
+
+                @Override
+                public String fromString(String string) {
+                    return null;
+                }
+            });
+            return contentType;
+        });
 
         recordTable.getFocusModel().focusedItemProperty().addListener(((observable, oldValue, newValue) -> {
             if (newValue != null) {
