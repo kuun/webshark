@@ -2,6 +2,10 @@ package org.webshark.view;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,6 +17,9 @@ import org.webshark.model.HttpRecord;
 import org.webshark.viewmodel.RecordViewModel;
 
 import java.net.URL;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 import java.util.ResourceBundle;
 
 
@@ -30,7 +37,7 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
     @FXML
     private TableColumn<HttpRecord, String> colType;
     @FXML
-    private TableColumn<HttpRecord, Float> colTime;
+    private TableColumn<HttpRecord, String> colTime;
 
     @FXML
     private Node reqBodyView;
@@ -72,6 +79,35 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
                 }
             });
             return contentType;
+        });
+
+        colTime.setCellValueFactory((data) -> {
+            var record = data.getValue();
+            var usedTime = new SimpleLongProperty();
+            usedTime.bind(Bindings.subtract(record.endTimestampProperty(), record.beginTimestampProperty()));
+            var usedTimeStr = new SimpleStringProperty();
+            usedTimeStr.bindBidirectional(usedTime, new Format() {
+                @Override
+                public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                    var num = ((Long)obj);
+                    if (num < 0) {
+                        toAppendTo.append('0');
+                    } else {
+                        if (num < 1000) {
+                            toAppendTo.append(num).append("ms");
+                        } else {
+                            toAppendTo.append(num / 1000).append('.').append(num % 1000).append('s');
+                        }
+                    }
+                    return toAppendTo;
+                }
+
+                @Override
+                public Object parseObject(String source, ParsePosition pos) {
+                    return null;
+                }
+            });
+            return usedTimeStr;
         });
 
         recordTable.getFocusModel().focusedItemProperty().addListener(((observable, oldValue, newValue) -> {

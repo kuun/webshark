@@ -11,6 +11,8 @@ public class HttpRecord {
     private Response res = new Response();
     private ProxyConf proxyConf;
     private SimpleListProperty<HeaderInfo> generalInfo;
+    private LongProperty beginTimestamp = new SimpleLongProperty();
+    private LongProperty endTimestamp = new SimpleLongProperty();
 
 
     public int getId() {
@@ -122,6 +124,30 @@ public class HttpRecord {
 
     public ListProperty<HeaderInfo> responseInfoProperty() {
         return res.headersProperty();
+    }
+
+    public long getBeginTimestamp() {
+        return beginTimestamp.get();
+    }
+
+    public LongProperty beginTimestampProperty() {
+        return beginTimestamp;
+    }
+
+    public void setBeginTimestamp(long beginTimestamp) {
+        this.beginTimestamp.set(beginTimestamp);
+    }
+
+    public long getEndTimestamp() {
+        return endTimestamp.get();
+    }
+
+    public LongProperty endTimestampProperty() {
+        return endTimestamp;
+    }
+
+    public void setEndTimestamp(long endTimestamp) {
+        this.endTimestamp.set(endTimestamp);
     }
 
     public void cleanInfo() {

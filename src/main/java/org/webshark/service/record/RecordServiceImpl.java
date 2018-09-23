@@ -13,6 +13,7 @@ import org.webshark.model.ProxyConf;
 import org.webshark.model.Request;
 import org.webshark.model.Response;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,6 +33,7 @@ class RecordServiceImpl implements IRecordService {
         var reqInfo = new Request(req);
         record.setReq(reqInfo);
         record.setProxyConf(proxyConf);
+        record.setBeginTimestamp(new Date().getTime());
         incompleteRecordMap.put(id, record);
         Platform.runLater(() -> {
             records.add(record);
@@ -77,6 +79,7 @@ class RecordServiceImpl implements IRecordService {
         }
         if (content == LastHttpContent.EMPTY_LAST_CONTENT) {
             log.debug("record is completed, record: {}", recordId);
+            record.setEndTimestamp(new Date().getTime());
             record.setCompleted(true);
             incompleteRecordMap.remove(recordId);
         }
