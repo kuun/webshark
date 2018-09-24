@@ -77,7 +77,7 @@ class RecordServiceImpl implements IRecordService {
         if (buf != null) {
             Platform.runLater(() -> record.addResContentBuffer(buf));
         }
-        if (content == LastHttpContent.EMPTY_LAST_CONTENT) {
+        if (content instanceof LastHttpContent) {
             log.debug("record is completed, record: {}", recordId);
             record.setEndTimestamp(new Date().getTime());
             record.setCompleted(true);
