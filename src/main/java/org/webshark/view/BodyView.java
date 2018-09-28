@@ -4,8 +4,6 @@ import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.ThrowableUtil;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,11 +13,11 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.webshark.control.HexTextArea;
 import org.webshark.viewmodel.BodyViewModel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -28,9 +26,9 @@ import java.util.ResourceBundle;
 public class BodyView implements FxmlView<BodyViewModel>, Initializable {
     private static final Logger log = LoggerFactory.getLogger(BodyView.class);
     @FXML
-    private RadioButton btnPreviewMode;
-    @FXML
     private RadioButton btnTextMode;
+    @FXML
+    private RadioButton btnHexMode;
     private ToggleGroup toggleGroup = new ToggleGroup();
     @FXML
     private StackPane stackPane;
@@ -39,13 +37,14 @@ public class BodyView implements FxmlView<BodyViewModel>, Initializable {
     private BodyViewModel viewModel;
     private ByteArrayOutputStream outputStream = null;
     private TextArea textArea;
+    private HexTextArea hexTextArea;
 
 
     private static final String DEFAULT_CHARSET = "UTF-8";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        btnPreviewMode.setToggleGroup(toggleGroup);
+        btnHexMode.setToggleGroup(toggleGroup);
         ;
         btnTextMode.setToggleGroup(toggleGroup);
         btnTextMode.setSelected(true);
@@ -98,18 +97,23 @@ public class BodyView implements FxmlView<BodyViewModel>, Initializable {
         });
 
         toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == btnPreviewMode) {
-                log.debug("preview mode");
-            } else if (newValue == btnTextMode) {
-                stackPane.getChildren().clear();
-                ;
+            if (oldValue == newValue) {
+                return;
+            }
+            stackPane.getChildren().clear();
+            if (newValue == btnTextMode) {
                 stackPane.getChildren().add(textArea);
+            } else if (newValue == btnHexMode) {
+                stackPane.getChildren().add(hexTextArea);
             }
         });
 
         textArea = new TextArea();
         textArea.setEditable(false);
         textArea.setWrapText(true);
+
+        hexTextArea = new HexTextArea();
+        hexTextArea.setContentBufs(contentBufs);
     }
 
     public BodyView setRequest(boolean request) {
