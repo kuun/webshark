@@ -2,6 +2,7 @@ package org.webshark.service.record;
 
 import com.google.inject.Singleton;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -91,16 +92,20 @@ class RecordServiceImpl implements IRecordService {
     }
 
     private ByteBuf getContentBuffer(HttpContent content) {
-        ByteBuf buf = null;
+        ByteBuf srcBuf = null;
         if (content instanceof DefaultHttpContent) {
             var tmp = (DefaultHttpContent)content;
-            buf = tmp.content().retain();
+            srcBuf = tmp.content();
         } else if (content instanceof LastHttpContent) {
             var tmp = (LastHttpContent)content;
             if (tmp != LastHttpContent.EMPTY_LAST_CONTENT) {
-                buf = tmp.content().retain();
+                srcBuf = tmp.content();
             }
         }
-        return buf;
+        if (srcBuf != null) {
+            return Unpooled.copiedBuffer(srcBuf);
+        } else {
+            return null;
+        }
     }
 }
