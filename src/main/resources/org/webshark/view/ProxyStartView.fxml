@@ -6,51 +6,67 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.webshark.view.ProxyStartView">
+<StackPane
+  style="-fx-background-image: url('images/background.jpg'); -fx-background-size: stretch; -fx-background-position: center center;"
+  xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+  fx:controller="org.webshark.view.ProxyStartView">
   <children>
-    <Label alignment="TOP_LEFT" text="Start Proxy" textFill="#403e3e">
-      <font>
-        <Font size="24.0" />
-      </font>
-    </Label>
-    <GridPane hgap="5.0">
-      <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="100" minWidth="10.0" prefWidth="100.0" />
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="160.0" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="100" minWidth="10.0" prefWidth="100.0" />
-        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="40.0" />
-      </columnConstraints>
-      <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="40" vgrow="SOMETIMES" />
-      </rowConstraints>
+    <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+          prefHeight="300.0" prefWidth="600.0" spacing="15.0" style="-fx-background-color: rgba(145, 181, 168, 0.8);">
       <children>
-        <Label alignment="TOP_LEFT" text="Proxy Address:" GridPane.columnIndex="0" />
-        <TextField fx:id="proxyAddr" GridPane.columnIndex="1">
-          <tooltip>
-            <Tooltip text="Format: 10.0.0.2" />
-          </tooltip>
-        </TextField>
-        <Label alignment="TOP_LEFT" text="Proxy Port:" GridPane.columnIndex="2" />
-        <Spinner fx:id="proxyPort" editable="true" GridPane.columnIndex="3">
-          <tooltip>
-            <Tooltip text="Format: 8000" />
-          </tooltip>
-        </Spinner>
+        <Label alignment="TOP_LEFT" text="Start Proxy" textFill="#403e3e">
+          <font>
+            <Font size="30.0"/>
+          </font>
+          <VBox.margin>
+            <Insets bottom="20.0" top="20.0"/>
+          </VBox.margin>
+        </Label>
+        <VBox spacing="10.0">
+          <children>
+            <Label alignment="TOP_LEFT" text="Proxy Address:" textFill="#6f6f6f">
+              <font>
+                <Font name="System Bold" size="12.0"/>
+              </font>
+            </Label>
+            <TextField fx:id="proxyAddr">
+              <tooltip>
+                <Tooltip text="Format: 10.0.0.2"/>
+              </tooltip>
+            </TextField>
+            <Label alignment="TOP_LEFT" text="Proxy Port:" textFill="#6f6f6f">
+              <font>
+                <Font name="System Bold" size="12.0"/>
+              </font>
+            </Label>
+            <Spinner fx:id="proxyPort" editable="true" prefWidth="Infinity">
+              <tooltip>
+                <Tooltip text="Format: 8000"/>
+              </tooltip>
+            </Spinner>
+          </children>
+          <VBox.margin>
+            <Insets left="150.0" right="150.0"/>
+          </VBox.margin>
+        </VBox>
+        <VBox alignment="CENTER_RIGHT" spacing="10.0">
+          <Button minWidth="80" mnemonicParsing="false" onAction="#onStart" text="Start">
+            <opaqueInsets>
+              <Insets/>
+            </opaqueInsets>
+          </Button>
+          <VBox.margin>
+            <Insets left="150.0" right="150.0"/>
+          </VBox.margin>
+        </VBox>
       </children>
-    </GridPane>
-    <Button minWidth="80" mnemonicParsing="false" onAction="#onStart" text="Start">
-      <opaqueInsets>
-        <Insets />
-      </opaqueInsets>
-    </Button>
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+      </padding>
+    </VBox>
   </children>
-  <padding>
-    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-  </padding>
-</VBox>
+</StackPane>
