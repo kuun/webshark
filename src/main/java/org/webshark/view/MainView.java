@@ -7,12 +7,12 @@ import de.saxsys.mvvmfx.utils.notifications.NotificationCenter;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import org.webshark.viewmodel.MainViewModel;
+import org.webshark.viewmodel.DummyViewModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainView extends AnchorPane implements JavaView<MainViewModel>, Initializable {
+public class MainView extends AnchorPane implements JavaView<DummyViewModel>, Initializable {
     @Inject
     private NotificationCenter notificationCenter;
 
