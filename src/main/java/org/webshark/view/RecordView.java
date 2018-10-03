@@ -56,7 +56,11 @@ public class RecordView implements FxmlView<RecordViewModel>, Initializable {
         recordTable.setItems(viewModel.getRecords());
         colId.setCellValueFactory((record) -> record.getValue().idProperty().asObject());
         colMethod.setCellValueFactory((record) -> record.getValue().methodProperty());
-        colUrl.setCellValueFactory((record) -> record.getValue().urlProperty());
+        colUrl.setCellValueFactory((record) -> {
+            var host = record.getValue().getReq().hostProperty();
+            var uri = record.getValue().urlProperty();
+            return Bindings.concat(host, uri);
+        });
         colStatus.setCellValueFactory((record) -> record.getValue().statusCodeProperty().asObject());
         colType.setCellValueFactory((record) -> {
             var contentTypeFull = record.getValue().getRes().contentTypeProperty();
