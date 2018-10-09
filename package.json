@@ -1,5 +1,5 @@
 {
-  "name": "webshark-js",
+  "name": "webshark",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -7,11 +7,15 @@
     "react-dom": "^16.5.2",
     "react-scripts": "2.0.4"
   },
+  "main": "src/electron-starter.js",
+  "homepage": "./",
   "scripts": {
-    "start": "node ./node_modules/react-scripts/bin/react-scripts start",
+    "start-win": "set BROWSER=none && node ./node_modules/react-scripts/bin/react-scripts start",
     "build": "node ./node_modules/react-scripts/bin/react-scripts build",
     "test": "node ./node_modules/react-scripts/bin/react-scripts test",
-    "eject": "node ./node_modules/react-scripts/bin/react-scripts eject"
+    "eject": "node ./node_modules/react-scripts/bin/react-scripts eject",
+    "electron-dev-win": "set ELECTRON_START_URL=http://localhost:5000 && node ./node_modules/electron/cli .",
+    "dev" : "node ./node_modules/foreman/nf start"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -23,6 +27,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "electron": "^3.0.3"
+    "electron": "^3.0.3",
+    "foreman": "^3.0.1"
   }
 }
