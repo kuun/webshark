@@ -1,0 +1,28 @@
+{
+  "name": "webshark-js",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-scripts": "2.0.4"
+  },
+  "scripts": {
+    "start": "node ./node_modules/react-scripts/bin/react-scripts start",
+    "build": "node ./node_modules/react-scripts/bin/react-scripts build",
+    "test": "node ./node_modules/react-scripts/bin/react-scripts test",
+    "eject": "node ./node_modules/react-scripts/bin/react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "electron": "^3.0.3"
+  }
+}
