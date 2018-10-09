@@ -5,6 +5,7 @@ import de.saxsys.mvvmfx.InjectViewModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.ThrowableUtil;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
@@ -35,7 +36,6 @@ public class BodyView implements FxmlView<BodyViewModel>, Initializable {
     private boolean isRequest = true;
     @InjectViewModel
     private BodyViewModel viewModel;
-    private ByteArrayOutputStream outputStream = null;
     private TextArea textArea;
     private HexTextArea hexTextArea;
 
@@ -51,48 +51,8 @@ public class BodyView implements FxmlView<BodyViewModel>, Initializable {
 
         var contentBufs = viewModel.contentBufsProperty();
         contentBufs.addListener((observable, oldValue, newValue) -> {
-            var selected = toggleGroup.getSelectedToggle();
             if (newValue != oldValue) {
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        log.error("error: {}", ThrowableUtil.stackTraceToString(e));
-                    }
-                }
-                outputStream = new ByteArrayOutputStream();
-                if (selected == btnTextMode) {
-                    stackPane.getChildren().clear();
-                    stackPane.getChildren().add(textArea);
-                }
-            }
-        });
-        contentBufs.addListener(new ListChangeListener<ByteBuf>() {
-            @Override
-            public void onChanged(Change<? extends ByteBuf> c) {
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        for (var buf : c.getAddedSubList()) {
-                            buf.markReaderIndex();
-                            try {
-                                buf.readBytes(outputStream, buf.readableBytes());
-                            } catch (IOException e) {
-                                log.error("error: {}", ThrowableUtil.stackTraceToString(e));
-                            } finally {
-                                buf.resetReaderIndex();
-                            }
-                        }
-                    }
-                }
-                var charset = getCharset();
-                textArea.clear();
-                try {
-                    var text = outputStream.toString(charset);
-                    textArea.setText(text);
-                } catch (UnsupportedEncodingException e) {
-                    log.error("error: {}", ThrowableUtil.stackTraceToString(e));
-                }
-
+                textArea.setText(buildText(newValue));
             }
         });
 
@@ -146,9 +106,14 @@ public class BodyView implements FxmlView<BodyViewModel>, Initializable {
         return contentType.substring(startPos + 8, endPos);
     }
 
-    private String buildText() {
-        var bufs = viewModel.contentBufsProperty();
-        var outputStream = new ByteArrayOutputStream();
+    private String buildText(ObservableList<ByteBuf> bufs) {
+        // calculate buffer size.
+        int bufferSize = 0;
+        for (ByteBuf buf : bufs) {
+            bufferSize += buf.readableBytes();
+        }
+
+        var outputStream = new ByteArrayOutputStream(bufferSize);
         for (ByteBuf buf : bufs) {
             buf.markReaderIndex();
             try {

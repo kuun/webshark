@@ -26,7 +26,13 @@ public class HexTextArea extends TextArea {
     }
 
     private String buildHexText(ObservableList<ByteBuf> bufs) {
-        StringBuilder sb = new StringBuilder();
+        // calculate buffer size.
+        int bufferSize = 0;
+        for (ByteBuf buf : bufs) {
+            bufferSize += buf.readableBytes();
+        }
+        int hexStrLen = 2 * bufferSize + bufferSize / 16;
+        StringBuilder sb = new StringBuilder(hexStrLen);
         int offset = 0;
         for (ByteBuf buf : bufs) {
             offset = convertBufToHex(buf, sb, offset);
