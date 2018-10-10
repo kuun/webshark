@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^3.10.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts": "2.0.4"
@@ -15,7 +16,7 @@
     "test": "node ./node_modules/react-scripts/bin/react-scripts test",
     "eject": "node ./node_modules/react-scripts/bin/react-scripts eject",
     "electron-dev-win": "set ELECTRON_START_URL=http://localhost:5000 && node ./node_modules/electron/cli .",
-    "dev" : "node ./node_modules/foreman/nf start"
+    "dev": "node ./node_modules/foreman/nf start"
   },
   "eslintConfig": {
     "extends": "react-app"
