@@ -1,4 +1,6 @@
-const electron = require('electron');
+import electron from 'electron';
+import ProxyServer from './main/proxy/ProxyServer';
+
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -33,6 +35,8 @@ function createWindow() {
         // when you should delete the corresponding element.
         mainWindow = null
     })
+  const proxyServer = new ProxyServer('localhost', 8000);
+    proxyServer.start();
 }
 
 // This method will be called when Electron has finished
