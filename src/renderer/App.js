@@ -1,22 +1,15 @@
-import React, { Component } from 'react';
+import React from 'react';
+import 'antd/dist/antd.css'
 import './App.css';
+import './components/ProxyStartForm'
+import ProxyStartForm from "./components/ProxyStartForm"
 
-class App extends Component {
+class App extends React.Component {
   render() {
     return (
         <div className="App">
           <header className="App-header">
-            <p>
-              Edit <code>src/renderer/App.js</code> and save to reload.
-            </p>
-            <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
+            <ProxyStartForm/>
           </header>
         </div>
     );
