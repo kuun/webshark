@@ -15,5 +15,9 @@ module.exports = {
   },
   globals: {
     __static: true
+  },
+  "rules": {
+    "react/prop-types": [0],
+    "no-console": ["error", { allow: ["warn", "error"] }]
   }
 }
