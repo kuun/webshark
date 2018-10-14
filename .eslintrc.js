@@ -11,14 +11,15 @@ module.exports = {
   },
   env: {
     browser: true,
-    node: true
+    node: true,
+    es6: true
   },
   globals: {
     __static: true
   },
   "rules": {
     "react/prop-types": [0],
-    "no-console": ["error", { allow: ["warn", "error"] }]
+    "no-console": ["error", { allow: ["log", "warn", "error"] }]
   },
   "settings": {
     "react": {
