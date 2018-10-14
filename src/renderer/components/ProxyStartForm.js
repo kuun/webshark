@@ -1,6 +1,7 @@
 import React from 'react';
-import { Form, Input, Button, InputNumber } from 'antd';
-import './ProxyStartForm.css'
+import { Form, Input, Button, InputNumber, notification } from 'antd';
+import './ProxyStartForm.css';
+import ProxyServer from '../core/proxy/ProxyServer';
 
 const FormItem = Form.Item;
 
@@ -21,6 +22,21 @@ class ProxyStartForm extends React.Component {
       }
       console.warn('Received values of form: ', values);
       // TODO: try to start proxy server.
+      let proxyServer = new ProxyServer(this.state.proxyAddr, this.state.proxyPort);
+      proxyServer.start().then((err) => {
+        if (err !== undefined) {
+          let msg;
+          console.error("error:", err);
+          if (err.code === 'EADDRINUSE') {
+            msg = 'Can not start proxy, port is used';
+          } else {
+            msg = 'Can not start proxy, error: ' + err;
+          }
+          notification['error']({message: msg});
+        } else {
+          notification['info']({message: `Proxy server is started on: ${this.state.proxyAddr}:${this.state.proxyPort}`});
+        }
+      });
     });
   }
 
@@ -46,7 +62,7 @@ class ProxyStartForm extends React.Component {
     };
 
     return (
-      <Form onSubmit={this.handleSubmit} className="proxy-start-form">
+      <Form className="proxy-start-form">
         <FormItem
           {...formItemLayout}
           label="Proxy Address"

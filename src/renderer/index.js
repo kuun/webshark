@@ -1,5 +1,5 @@
 // Initial welcome page. Delete the following line to remove it.
-'use strict'
+'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';

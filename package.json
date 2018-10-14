@@ -22,6 +22,7 @@
     "electron-webpack": "^2.1.2",
     "electron-webpack-eslint": "^3.0.0",
     "eslint-plugin-react": "^7.11.1",
+    "flow-bin": "^0.83.0",
     "webpack": "^4.16.5"
   },
   "resolutions": {
