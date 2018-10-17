@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "antd": "^3.10.0",
+    "lodash": "^4.17.11",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "react-redux": "^5.0.7",
     "source-map-support": "^0.5.9"
   },
   "devDependencies": {
@@ -23,6 +25,7 @@
     "electron-webpack-eslint": "^3.0.0",
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.83.0",
+    "flow-typed": "^2.5.1",
     "webpack": "^4.16.5"
   },
   "resolutions": {

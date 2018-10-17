@@ -1,5 +1,6 @@
 // @flow
 import http from 'http';
+import ProxySession from './ProxySession';
 
 export default class ProxyServer {
   laddr: string;
@@ -23,7 +24,8 @@ export default class ProxyServer {
       this.server.listen({
         host: this.laddr,
         port: this.lport
-      }, this.onRequest);
+      });
+      this.server.on('request', this.onRequest);
     });
     return await promise;
   }
@@ -34,5 +36,7 @@ export default class ProxyServer {
 
   onRequest(req: http.IncomingMessage, res: http.ServerResponse) {
     console.log("req: ", req, ", res: ", res);
+    let session = new ProxySession(req, res);
+    session.forward();
   }
 }
