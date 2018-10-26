@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Form, Input, Button, InputNumber, notification } from 'antd';
 import './ProxyStartForm.css';
 import ProxyServer from '../core/proxy/ProxyServer';
@@ -8,10 +9,6 @@ const FormItem = Form.Item;
 class ProxyStartForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      proxyAddr: "127.0.0.1",
-      proxyPort: 8000,
-    };
   }
 
   handleClick(e) {
@@ -20,9 +17,10 @@ class ProxyStartForm extends React.Component {
       if (err) {
         return;
       }
-      console.warn('Received values of form: ', values);
       // TODO: try to start proxy server.
-      let proxyServer = new ProxyServer(this.state.proxyAddr, this.state.proxyPort);
+      let addr = values.addr;
+      let port = values.port;
+      let proxyServer = new ProxyServer(addr, port);
       proxyServer.start().then((err) => {
         if (err !== undefined) {
           let msg;
@@ -34,7 +32,8 @@ class ProxyStartForm extends React.Component {
           }
           notification['error']({message: msg});
         } else {
-          notification['info']({message: `Proxy server is started on: ${this.state.proxyAddr}:${this.state.proxyPort}`});
+          notification['info']({message: `Proxy server is started on: ${addr}:${port}`});
+          this.props.onStart(addr, port);
         }
       });
     });
@@ -67,8 +66,8 @@ class ProxyStartForm extends React.Component {
           {...formItemLayout}
           label="Proxy Address"
         >
-          {getFieldDecorator('proxyAddr', {
-            initialValue: this.state.proxyAddr,
+          {getFieldDecorator('addr', {
+            initialValue: this.props.addr,
             rules: [{ required: true, message: 'Please input proxy address!' }],
           })(
             <Input placeholder="eg: localhost" />
@@ -77,8 +76,8 @@ class ProxyStartForm extends React.Component {
         <FormItem
           {...formItemLayout}
           label="Proxy Port">
-          {getFieldDecorator('proxyPort', {
-            initialValue: this.state.proxyPort,
+          {getFieldDecorator('port', {
+            initialValue: this.props.port,
             rules: [{ required: true, message: 'Please input proxy port!' }],
           })(
             <InputNumber min={1} max={65534} className="proxy-port-input"/>
@@ -92,6 +91,12 @@ class ProxyStartForm extends React.Component {
       </Form>
     );
   }
+}
+
+ProxyStartForm.propTypes = {
+  onStart: PropTypes.func.isRequired,
+  addr: PropTypes.string.isRequired,
+  port: PropTypes.number.isRequired
 }
 
 export default Form.create()(ProxyStartForm);
