@@ -6,3 +6,7 @@ export const startProxy = (addr, port) => ({
   port: port
 });
 
+export const addRecord = (record) => ({
+  type: ActionTypes.RECORD_TABLE_ADD,
+  record: record
+});

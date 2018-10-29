@@ -3,16 +3,16 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import 'antd/dist/antd.css'
 import './App.css';
 import './components/ProxyStartForm'
-import ProxyStartFormContainer from './containers/ProxyStartFormContainer';
+import HomePage from './components/HomePage';
+import RecordPage from './components/RecordPage';
 
 class App extends React.Component {
   render() {
     return (
         <BrowserRouter>
-        <div className="App">
-          <header className="App-header">
-            <Route exact path="/" component={ProxyStartFormContainer} />
-          </header>
+        <div>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/recordPage" component={RecordPage}/>
         </div>
         </BrowserRouter>
     );

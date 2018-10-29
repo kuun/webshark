@@ -14,7 +14,7 @@ const proxyServer = (state = defaultState, action) => {
         status: ProxyStatus.STARTING,
         addr: action.addr,
         port: action.port
-      }
+      };
     default:
       return state;
   }

@@ -2,6 +2,8 @@
 import http from 'http';
 import _ from 'lodash';
 import HttpRecord from './HttpRecord';
+import store from '../../reducers';
+import {addRecord} from "../../actions";
 
 export default class ProxySession {
   // the request is created by proxy server, represents the request from a client.
@@ -46,6 +48,7 @@ export default class ProxySession {
       this.targetRes.on('end', () => {
         console.log('target response end');
         this.proxyRes.end();
+        store.dispatch(addRecord(this.record));
       });
     });
   }
@@ -73,6 +76,7 @@ export default class ProxySession {
     this.record.minorVersion = this.proxyReq.httpVersionMinor;
     this.record.method = this.proxyReq.method;
     this.record.reqHeaders = this.proxyReq.headers;
+    this.record.url = this.proxyReq.url;
   }
 
   recordResponseHeader() {

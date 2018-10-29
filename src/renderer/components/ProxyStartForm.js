@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
+import {withRouter} from 'react-router';
+import {startProxy} from "../actions";
 import { Form, Input, Button, InputNumber, notification } from 'antd';
 import './ProxyStartForm.css';
 import ProxyServer from '../core/proxy/ProxyServer';
@@ -34,6 +37,7 @@ class ProxyStartForm extends React.Component {
         } else {
           notification['info']({message: `Proxy server is started on: ${addr}:${port}`});
           this.props.onStart(addr, port);
+          this.props.history.push('/recordPage');
         }
       });
     });
@@ -99,4 +103,24 @@ ProxyStartForm.propTypes = {
   port: PropTypes.number.isRequired
 }
 
-export default Form.create()(ProxyStartForm);
+const mapStateToProps = state => {
+  return {
+    addr: state.proxyServer.addr,
+    port: state.proxyServer.port
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onStart: (addr: string, port: number) => {
+      dispatch(startProxy(addr, port));
+    }
+  }
+};
+
+const container = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Form.create()(ProxyStartForm));
+
+export default withRouter(container);
