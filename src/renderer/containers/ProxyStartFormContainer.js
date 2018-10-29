@@ -1,5 +1,6 @@
 import {connect} from 'react-redux';
-import {startProxy} from "../actions"
+import {withRouter} from 'react-router';
+import {startProxy} from "../actions";
 import ProxyStartForm from "../components/ProxyStartForm";
 
 const mapStateToProps = state => {
@@ -17,7 +18,9 @@ const mapDispatchToProps = dispatch => {
   }
 };
 
-export default connect(
+const container = connect(
   mapStateToProps,
   mapDispatchToProps
 )(ProxyStartForm);
+
+export default withRouter(container);
