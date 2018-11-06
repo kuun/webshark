@@ -1,12 +1,12 @@
 import {combineReducers, createStore} from 'redux';
 import proxyServer from './proxyServer';
-import recordTableColumns from './recordTableColumns';
-import records from './records';
+import recordTable from './recordTable';
+import windowSize from './windowSize';
 
 const rootReducer = combineReducers({
   proxyServer,
-  recordTableColumns,
-  records
+  recordTable,
+  windowSize
 });
 
 export default createStore(rootReducer);

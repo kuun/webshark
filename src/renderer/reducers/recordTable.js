@@ -1,3 +1,19 @@
+import * as ActionTypes from '../constants/ActionTypes';
+import { combineReducers } from 'redux';
+
+
+const records = (state = [], action) => {
+  switch (action.type) {
+    case ActionTypes.RECORD_TABLE_ADD:
+      return [
+        ...state,
+        action.record
+      ];
+    default:
+      return state;
+  }
+};
+
 const defaultColumns = [{
   title: 'Sequence',
   dataIndex: 'id',
@@ -26,11 +42,16 @@ const defaultColumns = [{
   }
 }];
 
-const recordTableColumns = (state = defaultColumns, action) => {
+const columns = (state = defaultColumns, action) => {
   switch (action.type) {
     default:
       return state;
   }
 };
 
-export default recordTableColumns;
+const recordTable = combineReducers({
+  records,
+  columns
+});
+
+export default recordTable;

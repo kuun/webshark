@@ -1,5 +1,13 @@
 import * as ActionTypes from '../constants/ActionTypes';
 
+export const resizeWindow = (width, height) => ({
+  type: ActionTypes.RESIZE_WINDOW,
+  size: {
+    width,
+    height
+  }
+})
+
 export const startProxy = (addr, port) => ({
   type: ActionTypes.START_PROXY,
   addr: addr,
