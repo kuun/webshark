@@ -49,8 +49,25 @@ const columns = (state = defaultColumns, action) => {
   }
 };
 
+const selectedRecord = (state = {selectedRowKeys: [], record: null}, action) => {
+  switch (action.type) {
+    case ActionTypes.RECORD_TABLE_SELECT_RECORD:
+      if (action.record === state.record) {
+        return state;
+      }
+      state = {
+        selectedRowKeys: [action.record.id],
+        record: action.record
+      };
+      return state;
+    default:
+      return state;
+  }
+};
+
 const recordTable = combineReducers({
   records,
+  selectedRecord,
   columns
 });
 

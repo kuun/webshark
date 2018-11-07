@@ -1,4 +1,10 @@
-.RecordTable {
-  width: 100%;
-  height: 100%;
+.ant-table-tbody > tr.ant-table-row-selected td {
+  background: #7fb5fe;
+}
+
+.ant-table-thead > tr > th.ant-table-selection-column,
+.ant-table-tbody > tr > td.ant-table-selection-column {
+  text-align: center;
+  min-width: 30px;
+  width: 30px;
 }

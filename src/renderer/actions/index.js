@@ -6,7 +6,7 @@ export const resizeWindow = (width, height) => ({
     width,
     height
   }
-})
+});
 
 export const startProxy = (addr, port) => ({
   type: ActionTypes.START_PROXY,
@@ -16,5 +16,10 @@ export const startProxy = (addr, port) => ({
 
 export const addRecord = (record) => ({
   type: ActionTypes.RECORD_TABLE_ADD,
+  record: record
+});
+
+export const selectRecrod = (record) => ({
+  type: ActionTypes.RECORD_TABLE_SELECT_RECORD,
   record: record
 });
