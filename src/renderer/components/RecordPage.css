@@ -8,3 +8,25 @@
   min-width: 30px;
   width: 30px;
 }
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header .arrow {
+  margin-top: 3px;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  line-height: 22px;
+  padding: 4px 0 0 40px;
+  color: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  position: relative;
+  -webkit-transition: all .3s;
+  transition: all .3s;
+}
+
+.ant-collapse-content > .ant-collapse-content-box {
+  padding: 4px 8px 4px 8px;
+}
+
+.detail-wrap {
+  word-wrap: break-word;
+}
