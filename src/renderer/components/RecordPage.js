@@ -13,7 +13,7 @@ class RecordPage extends React.Component {
     return (
       <Layout>
         <Content>
-          <RecordTable className="RecordTable"/>
+          <RecordTable/>
         </Content>
         <Sider width={300} theme="light">
           <RecordDetails/>

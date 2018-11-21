@@ -14,51 +14,13 @@ const records = (state = [], action) => {
   }
 };
 
-const defaultColumns = [{
-  title: 'Sequence',
-  dataIndex: 'id',
-  width: 80
-}, {
-  title: 'Method',
-  dataIndex: 'method',
-  width: 80
-}, {
-  title: 'URL',
-  dataIndex: 'url',
-  width: 300
-}, {
-  title: 'Status Code',
-  dataIndex: 'statusCode',
-  width: 80
-}, {
-  title: 'Content Type',
-  dataIndex: 'resHeaders',
-  width: 200,
-  render: (data) => {
-    if (data) {
-      return data['content-type'];
-    }
-    return undefined;
-  }
-}];
-
-const columns = (state = defaultColumns, action) => {
-  switch (action.type) {
-    default:
-      return state;
-  }
-};
-
-const selectedRecord = (state = {selectedRowKeys: [], record: null}, action) => {
+const selectedRecord = (state = null, action) => {
   switch (action.type) {
     case ActionTypes.RECORD_TABLE_SELECT_RECORD:
-      if (action.record === state.record) {
+      if (action.record === state) {
         return state;
       }
-      state = {
-        selectedRowKeys: [action.record.id],
-        record: action.record
-      };
+      state = action.record;
       return state;
     default:
       return state;
@@ -67,8 +29,7 @@ const selectedRecord = (state = {selectedRowKeys: [], record: null}, action) => 
 
 const recordTable = combineReducers({
   records,
-  selectedRecord,
-  columns
+  selectedRecord
 });
 
 export default recordTable;

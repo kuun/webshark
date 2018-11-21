@@ -53,7 +53,7 @@ class RecordDetails extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const record: HttpRecord = state.recordTable.selectedRecord.record;
+  const record: HttpRecord = state.recordTable.selectedRecord;
   let generalHeaders = [];
   let requestHeaders = [];
   let responseHeaders = [];
