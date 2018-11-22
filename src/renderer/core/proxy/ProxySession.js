@@ -36,7 +36,7 @@ export default class ProxySession {
     this.proxyReq.pause();
     this.proxyReq.on('readable', () => this.forwardRequest());
     this.proxyReq.on('end', () => {
-      console.log('proxy request end');
+      // console.log('proxy request end');
       this.targetReq.end();
     });
 
@@ -46,7 +46,7 @@ export default class ProxySession {
       this.proxyReq.resume();
       this.targetRes.on('readable', () => this.forwardResponse());
       this.targetRes.on('end', () => {
-        console.log('target response end');
+        // console.log('target response end');
         this.proxyRes.end();
         store.dispatch(addRecord(this.record));
       });

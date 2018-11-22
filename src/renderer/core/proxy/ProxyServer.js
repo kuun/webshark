@@ -35,7 +35,7 @@ export default class ProxyServer {
   }
 
   onRequest(req: http.IncomingMessage, res: http.ServerResponse) {
-    console.log("req: ", req, ", res: ", res);
+    // console.log("req: ", req, ", res: ", res);
     let session = new ProxySession(req, res);
     session.forward();
   }
