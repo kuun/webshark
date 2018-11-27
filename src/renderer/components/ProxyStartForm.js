@@ -20,25 +20,23 @@ class ProxyStartForm extends React.Component {
       if (err) {
         return;
       }
-      // TODO: try to start proxy server.
       let addr = values.addr;
       let port = values.port;
       let proxyServer = new ProxyServer(addr, port);
-      proxyServer.start().then((err) => {
-        if (err !== undefined) {
-          let msg;
-          console.error("error:", err);
-          if (err.code === 'EADDRINUSE') {
-            msg = 'Can not start proxy, port is used';
-          } else {
-            msg = 'Can not start proxy, error: ' + err;
-          }
-          notification['error']({message: msg});
+      proxyServer.start().then(() => {
+        notification['info']({message: `Proxy server is started on: ${addr}:${port}`});
+        this.props.onStart(addr, port);
+        this.props.history.push('/recordPage');
+      }).catch((err) => {
+        let msg;
+        console.error("error:", err);
+        if (err.code === 'EADDRINUSE') {
+          msg = 'Can not start proxy, port is used';
         } else {
-          notification['info']({message: `Proxy server is started on: ${addr}:${port}`});
-          this.props.onStart(addr, port);
-          this.props.history.push('/recordPage');
+          msg = 'Can not start proxy, error: ' + err;
         }
+        notification['error']({message: msg});
+        proxyServer.stop();
       });
     });
   }

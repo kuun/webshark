@@ -1,5 +1,6 @@
 // @flow
 import http from 'http';
+import https from 'https';
 import _ from 'lodash';
 import HttpRecord from './HttpRecord';
 import store from '../../reducers';
@@ -14,17 +15,21 @@ export default class ProxySession {
   targetReq: http.ClientRequest;
   // the response is created by http client, represents the response from a target server.
   targetRes: http.IncomingMessage;
+  isHttps: boolean;
   record: HttpRecord;
 
   constructor(proxyReq: http.IncomingMessage, proxyRes: http.ServerResponse) {
     this.proxyReq = proxyReq;
     this.proxyRes = proxyRes;
+    if (proxyReq.client.ssl) {
+      this.isHttps = true;
+    }
     this.record = new HttpRecord();
     this.recordRequestHeader();
   }
 
   forward() {
-     this.targetReq = http.request(this.proxyReq.url);
+    this.targetReq = this.createTargetReq();
     // copy request headers
     _.each(this.proxyReq.headers, (value, key) => {
       if (key !== 'host') {
@@ -53,6 +58,19 @@ export default class ProxySession {
     });
   }
 
+  // create http/https request to target server.
+  createTargetReq () {
+    if (this.isHttps) {
+      return https.request({
+        host: this.proxyReq.headers['host'],
+        path: this.proxyReq.url,
+        method: this.proxyReq.method
+      });
+    } else {
+      return http.request(this.proxyReq.url);
+    }
+  }
+
   // forward http request body from client to server.
   forwardRequest() {
     let data = this.proxyReq.read();
@@ -76,7 +94,11 @@ export default class ProxySession {
     this.record.minorVersion = this.proxyReq.httpVersionMinor;
     this.record.method = this.proxyReq.method;
     this.record.reqHeaders = this.proxyReq.headers;
-    this.record.url = this.proxyReq.url;
+    if (this.isHttps) {
+      this.record.url = 'https://' + this.proxyReq.headers['host'] + this.proxyReq.url;
+    } else {
+      this.record.url = this.proxyReq.url;
+    }
   }
 
   recordResponseHeader() {
