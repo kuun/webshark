@@ -54,6 +54,7 @@ export default class ProxySession {
       this.targetRes.on('end', () => {
         // console.log('target response end');
         this.proxyRes.end();
+        this.record.completeRecord();
         store.dispatch(addRecord(this.record));
       });
     });

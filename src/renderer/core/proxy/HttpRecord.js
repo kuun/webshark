@@ -17,9 +17,12 @@ export default class HttpRecord {
   resBody: buffer.Buffer[];
 
   constructor() {
-    this.id = HttpRecord.getNextId();
     this.reqBody = [];
     this.resBody = [];
+  }
+
+  completeRecord() {
+    this.id = HttpRecord.getNextId();
   }
 
   static getNextId(): number {
