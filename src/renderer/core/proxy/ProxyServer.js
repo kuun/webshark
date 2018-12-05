@@ -17,11 +17,11 @@ export default class ProxyServer {
     this.laddr = laddr;
     this.lport = lport;
     this.httpServer = http.createServer();
-    let randomNum = Math.floor(Math.random() * Math.floor(100000));
+    this.randomNum = Math.floor(Math.random() * Math.floor(100000));
     if (os.platform() === 'win32') {
-      this.httpsIpc = '\\\\.\\pipe\\' + 'webshark' +  randomNum;
+      this.httpsIpc = '\\\\.\\pipe\\' + 'webshark' +  this.randomNum;
     } else {
-      this.httpsIpc = '/tmp/webshark-' + randomNum + '.sock';
+      this.httpsIpc = '/tmp/webshark-' + this.randomNum + '.sock';
     }
     let certKey = this.buildCertAndKey();
     this.httpsServer = https.createServer({
@@ -107,7 +107,7 @@ export default class ProxyServer {
     // Conforming CAs should ensure serialNumber is:
     // - no more than 20 octets
     // - non-negative (prefix a '00' if your value starts with a '1' bit)
-    cert.serialNumber = '01';
+    cert.serialNumber = '00' + this.randomNum;
     cert.validity.notBefore = new Date();
     cert.validity.notAfter = new Date();
     cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
