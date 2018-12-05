@@ -44,6 +44,14 @@ export default class ProxySession {
       // console.log('proxy request end');
       this.targetReq.end();
     });
+    this.proxyReq.on('error', (err) => {
+      console.log('get error while handling proxy request: ' + err);
+      this.close();
+    });
+    this.proxyRes.on('error', (err) => {
+      console.log('get error while handling proxy response: ' + err);
+      this.close();
+    });
 
     this.targetReq.on('response', (res: http.IncomingMessage) => {
       this.targetRes = res;
@@ -57,6 +65,15 @@ export default class ProxySession {
         this.record.completeRecord();
         store.dispatch(addRecord(this.record));
       });
+      this.targetRes.on('error', (err) => {
+        console.log('get error while handling target response: ' + err);
+        this.close();
+      })
+    });
+    this.targetReq.on('error', (err) => {
+      // TODO: write 502 to client.
+      console.log('get error while handling target request: ' + err + ', target request: ', this.targetReq);
+      this.close();
     });
   }
 
@@ -115,6 +132,24 @@ export default class ProxySession {
     _.each(this.targetRes.headers, (value, key) => {
       this.proxyRes.setHeader(key, value);
     });
+  }
 
+  close() {
+    if (this.proxyReq) {
+      this.proxyReq.connection.destroy();
+      this.proxyReq = undefined;
+    }
+    if (this.proxyRes) {
+      this.proxyRes.connection.destroy();
+      this.proxyRes = undefined;
+    }
+    if (this.targetReq) {
+      this.targetReq.connection.destroy();
+      this.targetReq = undefined;
+    }
+    if (this.targetRes) {
+      this.targetRes.connection.destroy();
+      this.targetRes = undefined;
+    }
   }
 }
