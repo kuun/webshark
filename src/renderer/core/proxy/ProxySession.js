@@ -48,6 +48,7 @@ export default class ProxySession {
     this.targetReq.on('response', (res: http.IncomingMessage) => {
       this.targetRes = res;
       this.recordResponseHeader();
+      this.copyResponseHeader();
       this.proxyReq.resume();
       this.targetRes.on('readable', () => this.forwardResponse());
       this.targetRes.on('end', () => {
@@ -105,5 +106,14 @@ export default class ProxySession {
     this.record.statusCode = this.targetRes.statusCode;
     this.record.statusMessage = this.targetRes.statusMessage;
     this.record.resHeaders = this.targetRes.headers;
+  }
+
+  copyResponseHeader() {
+    this.proxyRes.statusCode = this.targetRes.statusCode;
+    this.proxyRes.statusMessage  = this.targetRes.statusMessage;
+    _.each(this.targetRes.headers, (value, key) => {
+      this.proxyRes.setHeader(key, value);
+    });
+
   }
 }
