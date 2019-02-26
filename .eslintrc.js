@@ -17,6 +17,7 @@ module.exports = {
   globals: {
     __static: true
   },
+  plugins: ["jest"],
   "rules": {
     "react/prop-types": [0],
     "no-console": ["error", { allow: ["log", "warn", "error"] }]
