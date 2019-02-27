@@ -20,7 +20,12 @@ module.exports = {
   plugins: ["jest"],
   "rules": {
     "react/prop-types": [0],
-    "no-console": ["error", { allow: ["log", "warn", "error"] }]
+    "no-console": ["error", { allow: ["log", "warn", "error"] }],
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error"
   },
   "settings": {
     "react": {
