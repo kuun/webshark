@@ -103,7 +103,7 @@ export default class ProxySession {
   forwardResponse() {
     let data = this.targetRes.read();
     if (data) {
-      this.record.reqBody.push(data);
+      this.record.resBody.push(data);
       this.proxyRes.write(data);
     }
   }
