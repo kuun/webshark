@@ -15,6 +15,7 @@ export default class HttpRecord {
   resHeaders: {};
   reqBody: buffer.Buffer[];
   resBody: buffer.Buffer[];
+  error: Error;
 
   constructor() {
     this.reqBody = [];
