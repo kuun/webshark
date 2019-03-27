@@ -27,6 +27,19 @@ class RecordTable extends React.Component {
       }
     };
 
+    this.getContentType = ({rowData}) => {
+      if (!rowData) return undefined;
+      let columnData = rowData.resHeaders;
+      let contentType = columnData ? columnData['content-type'] : undefined;
+      if (!contentType) return undefined;
+      let commaIndex = contentType.indexOf(';');
+      if (commaIndex === -1) {
+        return contentType;
+      } else {
+        return contentType.substring(0, commaIndex);
+      }
+    };
+
   }
 
   render() {
@@ -71,11 +84,12 @@ class RecordTable extends React.Component {
           width={210}
           label="Content Type"
           dataKey="resHeaders"
-          cellDataGetter={({columnData}) => columnData ? columnData['content-type'] : undefined}
+          cellDataGetter={this.getContentType}
         />
       </Table>
     );
   }
+
 }
 
 const mapStateToProps = state => {
