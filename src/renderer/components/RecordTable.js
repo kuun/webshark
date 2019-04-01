@@ -6,7 +6,7 @@ import './RecordTable.css';
 import 'react-virtualized/styles.css';
 
 
-class RecordTable extends React.Component {
+export class RecordTable extends React.Component {
   constructor(props) {
     super(props);
 
