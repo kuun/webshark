@@ -1,124 +1,84 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
 import {withRouter} from 'react-router';
-import {startProxy} from "../actions";
-import { Form, Input, Button, InputNumber, notification } from 'antd';
 import './ProxyStartForm.css';
 import ProxyServer from '../core/proxy/ProxyServer';
-
-const FormItem = Form.Item;
+import {Button, FileInput, FormGroup, InputGroup, NumericInput} from "@blueprintjs/core";
+import {AppToaster} from "./AppToaster";
+import {Intent} from "@blueprintjs/core/lib/cjs/common/intent";
 
 class ProxyStartForm extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      addr: '127.0.0.1',
+      port: 8000,
+      keyFile: '',
+      certFile: '',
+    };
   }
 
-  handleClick(e) {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
-      if (err) {
-        return;
+  handleInputChange = (event) => {
+    const target = event.target;
+    const name = target.name;
+    const value = target.value;
+    this.setState({[name]: value});
+  };
+
+  handleFileInputChange = (event) => {
+    const target = event.target;
+    const files = target.files;
+    const name = target.name;
+    if (!files || files.length === 0) {
+      return;
+    }
+    this.setState({[name]: files[0].path});
+  };
+
+  handleClick = () => {
+    const {addr, port, keyFile, certFile} = this.state;
+    let proxyServer = new ProxyServer(addr, port, keyFile, certFile);
+    proxyServer.start().then(() => {
+      AppToaster.show({intent: Intent.SUCCESS, timeout: 2000, message: `Proxy server is started on: ${addr}:${port}`});
+      this.props.history.push('/recordPage');
+    }).catch((err) => {
+      let msg;
+      console.error("error:", err);
+      if (err.code === 'EADDRINUSE') {
+        msg = 'Can not start proxy, port is used';
+      } else {
+        msg = 'Can not start proxy, error: ' + err;
       }
-      let addr = values.addr;
-      let port = values.port;
-      let proxyServer = new ProxyServer(addr, port);
-      proxyServer.start().then(() => {
-        notification['info']({message: `Proxy server is started on: ${addr}:${port}`});
-        this.props.onStart(addr, port);
-        this.props.history.push('/recordPage');
-      }).catch((err) => {
-        let msg;
-        console.error("error:", err);
-        if (err.code === 'EADDRINUSE') {
-          msg = 'Can not start proxy, port is used';
-        } else {
-          msg = 'Can not start proxy, error: ' + err;
-        }
-        notification['error']({message: msg});
-        proxyServer.stop();
-      });
+      AppToaster.show({intent: Intent.DANGER, message: msg});
+      proxyServer.stop();
     });
-  }
+
+  };
+
 
   render() {
-    const { getFieldDecorator } = this.props.form;
-
-    const formItemLayout = {
-      labelCol: {
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        sm: { span: 16 },
-      },
-    };
-
-    const tailFormItemLayout = {
-      wrapperCol: {
-        sm: {
-          span: 1,
-          offset: 8,
-        },
-      },
-    };
-
+    const {addr, port, keyFile, certFile} = this.state;
     return (
-      <Form className="proxy-start-form">
-        <FormItem
-          {...formItemLayout}
-          label="Proxy Address"
-        >
-          {getFieldDecorator('addr', {
-            initialValue: this.props.addr,
-            rules: [{ required: true, message: 'Please input proxy address!' }],
-          })(
-            <Input placeholder="eg: localhost" />
-          )}
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="Proxy Port">
-          {getFieldDecorator('port', {
-            initialValue: this.props.port,
-            rules: [{ required: true, message: 'Please input proxy port!' }],
-          })(
-            <InputNumber min={1} max={65534} className="proxy-port-input"/>
-          )}
-        </FormItem>
-        <FormItem  {...tailFormItemLayout}>
-          <Button type="primary" onClick={(e) => this.handleClick(e)}>
-            Start Proxy
-          </Button>
-        </FormItem>
-      </Form>
+      <div id="proxyStartForm">
+        <FormGroup label="Proxy Address" labelInfo="*" inline>
+          <InputGroup placeholder="eg: localhost" name="addr" value={addr} onChange={this.handleInputChange}/>
+        </FormGroup>
+        <FormGroup label="Proxy Port" labelInfo="*" inline>
+          <NumericInput max={65534} min={1} name="port" value={port} buttonPosition="none" onChange={this.handleInputChange}/>
+        </FormGroup>
+        <FormGroup label="HTTPS key" labelFor="keyFile" labelInfo="*" inline>
+          <FileInput text={keyFile ? keyFile : 'Choose key file...'}
+                     inputProps={{name: "keyFile"}}
+                     onInputChange={this.handleFileInputChange}/>
+        </FormGroup>
+        <FormGroup label="HTTPS certificate" labelFor="certFile" labelInfo="*" inline>
+          <FileInput text={certFile ? certFile : 'Choose certificate file...'}
+                     inputProps={{name: "certFile"}}
+                     onInputChange={this.handleFileInputChange}/>
+        </FormGroup>
+        <Button rightIcon="arrow-right" text="Start Proxy Server" onClick={this.handleClick} />
+      </div>
     );
   }
 }
 
-ProxyStartForm.propTypes = {
-  onStart: PropTypes.func.isRequired,
-  addr: PropTypes.string.isRequired,
-  port: PropTypes.number.isRequired
-}
-
-const mapStateToProps = state => {
-  return {
-    addr: state.proxyServer.addr,
-    port: state.proxyServer.port
-  }
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    onStart: (addr: string, port: number) => {
-      dispatch(startProxy(addr, port));
-    }
-  }
-};
-
-const container = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Form.create()(ProxyStartForm));
-
-export default withRouter(container);
+export default withRouter(ProxyStartForm);

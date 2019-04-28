@@ -5,3 +5,11 @@
 .proxy-port-input {
   width: 100%;
 }
+
+#proxyStartForm > div > label {
+  width: 150px;
+}
+
+#proxyStartForm input {
+  width: 300px;
+}

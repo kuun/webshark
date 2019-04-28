@@ -3,8 +3,9 @@ import http from 'http';
 import https from 'https';
 import net from 'net';
 import os from 'os';
-import forge from 'node-forge';
+import fs from 'fs';
 import ProxySession from './ProxySession';
+
 
 export default class ProxyServer {
   laddr: string;
@@ -13,7 +14,7 @@ export default class ProxyServer {
   httpsServer: https.Server;
   httpsIpc: string;
 
-  constructor (laddr: string, lport: string) {
+  constructor (laddr: string, lport: string, keyFile: string, certFile: string) {
     this.laddr = laddr;
     this.lport = lport;
     this.httpServer = http.createServer();
@@ -23,10 +24,11 @@ export default class ProxyServer {
     } else {
       this.httpsIpc = '/tmp/webshark-' + this.randomNum + '.sock';
     }
-    let certKey = this.buildCertAndKey();
+    let key: string = this.readFile(keyFile);
+    let cert: string = this.readFile(certFile);
     this.httpsServer = https.createServer({
-      key: certKey.key,
-      cert: certKey.cert
+      key,
+      cert
     })
   }
 
@@ -94,53 +96,7 @@ export default class ProxyServer {
     this.httpsServer.close();
   }
 
-  buildCertAndKey () {
-    let pki = forge.pki;
-
-    // generate a keypair and create an X.509v3 certificate
-    var keys = pki.rsa.generateKeyPair(2048);
-    var cert = pki.createCertificate();
-    cert.publicKey = keys.publicKey;
-    // alternatively set public key from a csr
-    //cert.publicKey = csr.publicKey;
-    // NOTE: serialNumber is the hex encoded value of an ASN.1 INTEGER.
-    // Conforming CAs should ensure serialNumber is:
-    // - no more than 20 octets
-    // - non-negative (prefix a '00' if your value starts with a '1' bit)
-    cert.serialNumber = '00' + this.randomNum;
-    cert.validity.notBefore = new Date();
-    cert.validity.notAfter = new Date();
-    cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
-    var attrs = [{
-      name: 'commonName',
-      value: 'example.org'
-    }, {
-      name: 'countryName',
-      value: 'US'
-    }, {
-      shortName: 'ST',
-      value: 'Virginia'
-    }, {
-      name: 'localityName',
-      value: 'Blacksburg'
-    }, {
-      name: 'organizationName',
-      value: 'Test'
-    }, {
-      shortName: 'OU',
-      value: 'Test'
-    }];
-    cert.setSubject(attrs);
-    cert.setIssuer(attrs);
-    // self-sign certificate
-    cert.sign(keys.privateKey);
-    // convert a Forge certificate to PEM
-    var pemCert = pki.certificateToPem(cert);
-    var pemKey = pki.privateKeyToPem(keys.privateKey);
-
-    return {
-      key: pemKey,
-      cert: pemCert
-    }
+  readFile(fileName: string) :string {
+    return fs.readFileSync(fileName);
   }
 }

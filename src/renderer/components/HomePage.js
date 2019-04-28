@@ -7,9 +7,7 @@ class RecordPage extends React.Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <ProxyStartForm/>
-        </header>
+        <ProxyStartForm/>
       </div>
     );
   }
