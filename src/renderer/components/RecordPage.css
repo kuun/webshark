@@ -1,32 +1,29 @@
-.ant-table-tbody > tr.ant-table-row-selected td {
-  background: #7fb5fe;
+.rightPanel {
+  float: left;
+  display: inline-block;
+  padding: 5px;
 }
 
-.ant-table-thead > tr > th.ant-table-selection-column,
-.ant-table-tbody > tr > td.ant-table-selection-column {
-  text-align: center;
-  min-width: 30px;
-  width: 30px;
+.leftPanel {
+  float: left;
+  display: inline-block;
+  padding: 5px;
+  overflow: auto;
 }
 
-.ant-collapse > .ant-collapse-item > .ant-collapse-header .arrow {
-  margin-top: 3px;
+.collapsePanelTitle {
+  width: 100%;
+  min-height: 24px !important; /* override blueprint button height */
+  margin-bottom: 5px;
 }
 
-.ant-collapse > .ant-collapse-item > .ant-collapse-header {
-  line-height: 22px;
-  padding: 4px 0 0 40px;
-  color: rgba(0, 0, 0, 0.85);
-  cursor: pointer;
-  position: relative;
-  -webkit-transition: all .3s;
-  transition: all .3s;
-}
-
-.ant-collapse-content > .ant-collapse-content-box {
-  padding: 4px 8px 4px 8px;
-}
-
-.detail-wrap {
+.detailWrap {
   word-wrap: break-word;
 }
+
+.detailBlock {
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 5px;
+}
+

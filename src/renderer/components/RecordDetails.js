@@ -1,16 +1,14 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import { Collapse } from 'antd';
 import HttpRecord from "../core/proxy/HttpRecord";
+import {Button, Collapse} from '@blueprintjs/core';
 import _ from 'lodash';
 import'./RecordPage.css';
-
-const Panel = Collapse.Panel;
 
 class HeaderDetail extends React.Component {
   renderRow(header, index) {
     return (
-      <div key={index} className="detail-wrap">
+      <div key={index} className="detailWrap">
         <span style={{fontWeight: "bold"}}>{header.name}:</span>&nbsp;<span>{header.value}</span>
       </div>
     )
@@ -27,8 +25,33 @@ class HeaderDetail extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="detailBlock">
         {this.renderRows()}
+      </div>
+    );
+  }
+}
+
+class CollapseHeadersPanel extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: true,
+    };
+  }
+
+  handleTitleClick = () => {
+    this.setState({isOpen: !this.state.isOpen});
+  };
+
+  render() {
+    const {title, headers} = this.props;
+    return (
+      <div>
+        <Button className="collapsePanelTitle" onClick={this.handleTitleClick}>{title}</Button>
+        <Collapse isOpen={this.state.isOpen}>
+          <HeaderDetail headers={headers}/>
+        </Collapse>
       </div>
     );
   }
@@ -37,17 +60,11 @@ class HeaderDetail extends React.Component {
 class RecordDetails extends React.Component {
   render() {
     return (
-      <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
-        <Panel header="General" key="1">
-          <HeaderDetail headers={this.props.generalHeaders}/>
-        </Panel>
-        <Panel header="Response Headers" key="2">
-          <HeaderDetail headers={this.props.responseHeaders}/>
-        </Panel>
-        <Panel header="Request Headers" key="3">
-          <HeaderDetail headers={this.props.requestHeaders}/>
-        </Panel>
-      </Collapse>
+      <div>
+        <CollapseHeadersPanel title="General Headers" headers={this.props.generalHeaders}/>
+        <CollapseHeadersPanel title="Response Headers" headers={this.props.responseHeaders}/>
+        <CollapseHeadersPanel title="Request Headers" headers={this.props.requestHeaders}/>
+      </div>
     );
   }
 }

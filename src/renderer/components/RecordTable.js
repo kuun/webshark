@@ -48,8 +48,8 @@ export class RecordTable extends React.Component {
     return (
       <Table
         headerHeight={30}
-        width={this.props.tableSize.x}
-        height={this.props.tableSize.y}
+        width={this.props.width}
+        height={this.props.height}
         className="Table"
         headerClassName="headerColumn"
         rowClassName={this.rowClassName}
@@ -76,7 +76,7 @@ export class RecordTable extends React.Component {
           flexGrow={1}
         />
         <Column
-          width={210}
+          width={200}
           label="Status Code"
           dataKey="statusCode"
         />
@@ -94,16 +94,11 @@ export class RecordTable extends React.Component {
 
 const mapStateToProps = state => {
   const {records, selectedRecord} = state.recordTable;
-  const windowSize = state.windowSize;
-  const tableSize = {
-    x: windowSize.width - 300,
-    y: windowSize.height
-  };
+
   const rowCount = records.length;
   return {
     records,
     selectedRecord,
-    tableSize,
     rowCount
   }
 };
