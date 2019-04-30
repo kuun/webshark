@@ -97,6 +97,14 @@ export default class ProxyServer {
   }
 
   readFile(fileName: string) :string {
-    return fs.readFileSync(fileName);
+    try {
+      return fs.readFileSync(fileName);
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        throw "file '" + fileName + "' is not exist"
+      } else {
+        throw e;
+      }
+    }
   }
 }
