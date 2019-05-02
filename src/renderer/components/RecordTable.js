@@ -9,18 +9,20 @@ import 'react-virtualized/styles.css';
 export class RecordTable extends React.Component {
   constructor(props) {
     super(props);
-
+    this.state = {
+      selectedIndex: -2 // index -1 is used by header
+    }
   }
 
-  onRow = ({rowData}) => {
+  onRow = ({rowData, index}) => {
+    this.setState({selectedIndex: index});
     this.props.onSelect(rowData);
   };
 
   rowClassName = ({index}) => {
-    if (this.props.selectedRecord) {
-      if (index === this.props.selectedRecord.id - 1) {
-        return 'selectedRow'
-      }
+    if (this.state.selectedIndex === index) {
+      return 'selectedRow'
+
     }
     if (index < 0) {
       return 'headerRow';
