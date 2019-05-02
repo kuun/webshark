@@ -10,37 +10,37 @@ export class RecordTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.onRow = ({rowData}) => {
-      this.props.onSelect(rowData);
-    };
-
-    this.rowClassName = ({index}) => {
-      if (this.props.selectedRecord) {
-        if (index === this.props.selectedRecord.id - 1) {
-          return 'selectedRow'
-        }
-      }
-      if (index < 0) {
-        return 'headerRow';
-      } else {
-        return index % 2 === 0 ? 'evenRow' : 'oddRow';
-      }
-    };
-
-    this.getContentType = ({rowData}) => {
-      if (!rowData) return undefined;
-      let columnData = rowData.resHeaders;
-      let contentType = columnData ? columnData['content-type'] : undefined;
-      if (!contentType) return undefined;
-      let commaIndex = contentType.indexOf(';');
-      if (commaIndex === -1) {
-        return contentType;
-      } else {
-        return contentType.substring(0, commaIndex);
-      }
-    };
-
   }
+
+  onRow = ({rowData}) => {
+    this.props.onSelect(rowData);
+  };
+
+  rowClassName = ({index}) => {
+    if (this.props.selectedRecord) {
+      if (index === this.props.selectedRecord.id - 1) {
+        return 'selectedRow'
+      }
+    }
+    if (index < 0) {
+      return 'headerRow';
+    } else {
+      return index % 2 === 0 ? 'evenRow' : 'oddRow';
+    }
+  };
+
+  getContentType = ({rowData}) => {
+    if (!rowData) return undefined;
+    let columnData = rowData.resHeaders;
+    let contentType = columnData ? columnData['content-type'] : undefined;
+    if (!contentType) return undefined;
+    let commaIndex = contentType.indexOf(';');
+    if (commaIndex === -1) {
+      return contentType;
+    } else {
+      return contentType.substring(0, commaIndex);
+    }
+  };
 
   render() {
     const rowGetter = ({index}) => this.props.records[index];
