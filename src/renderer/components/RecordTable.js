@@ -47,13 +47,13 @@ export class RecordTable extends React.Component {
 
     return (
       <Table
-        headerHeight={30}
+        headerHeight={28}
         width={this.props.width}
         height={this.props.height}
         className="Table"
-        headerClassName="headerColumn"
+        headerClassName="tableHeader"
         rowClassName={this.rowClassName}
-        rowHeight={30}
+        rowHeight={28}
         rowGetter={rowGetter}
         rowCount={this.props.rowCount}
         sortDirection={SortDirection.ASC}
@@ -76,8 +76,8 @@ export class RecordTable extends React.Component {
           flexGrow={1}
         />
         <Column
-          width={200}
-          label="Status Code"
+          width={60}
+          label="Code"
           dataKey="statusCode"
         />
         <Column
