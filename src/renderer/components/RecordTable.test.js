@@ -10,9 +10,6 @@ describe('RecordTable', () => {
       records: [
         {},{}, {}, {}
       ],
-      selectedRecord: {
-        id: 1
-      },
       tableSize: {
         x: 800,
         y: 600,
@@ -21,6 +18,9 @@ describe('RecordTable', () => {
     };
 
     table = new RecordTable(props);
+    table.state = {
+      selectedIndex: 0
+    }
   });
 
   describe('rowClassName', () => {
