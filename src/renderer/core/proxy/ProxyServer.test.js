@@ -1,13 +1,16 @@
 import http from 'http';
 import https from 'https';
 import net from 'net';
+import fs from 'fs';
 import ProxyServer from "./ProxyServer";
 import ProxySession from './ProxySession';
 
 jest.mock('http');
 jest.mock('https');
 jest.mock('net');
+jest.mock('fs');
 jest.mock('./ProxySession');
+
 
 export const mockForward = jest.fn();
 
@@ -74,6 +77,11 @@ beforeAll(() => {
     net.nextSocket.on('connect', handler);
     return net.nextSocket;
   });
+});
+
+// mock fs
+beforeAll(() => {
+  fs.readFileSync.mockImplementation(() => '');
 });
 
 // reset mock state
