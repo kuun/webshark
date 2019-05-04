@@ -1,6 +1,4 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import HttpRecord from "../core/proxy/HttpRecord";
 import {Alignment, Button, Collapse} from '@blueprintjs/core';
 import _ from 'lodash';
 import'./RecordPage.css';
@@ -67,42 +65,52 @@ class CollapseHeadersPanel extends React.Component{
 }
 
 class RecordDetails extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  getGeneralHeaders() {
+    const {record} = this.props;
+    let generalHeaders = [];
+    if (record) {
+      generalHeaders.push({name: 'Request URL', value: record.url});
+      generalHeaders.push({name: 'Request Method', value: record.method});
+      generalHeaders.push({name: 'Status Code', value: record.statusCode});
+    }
+    return generalHeaders;
+  }
+
+  getReqHeaders() {
+    const {record} = this.props;
+    let headers = [];
+    if (record) {
+      _.each(record.reqHeaders, (value, name) => {
+        headers.push({name, value})
+      });
+    }
+    return headers;
+  }
+
+  getResHeaders() {
+    const {record} = this.props;
+    let headers = [];
+    if (record) {
+      _.each(record.resHeaders, (value, name) => {
+        headers.push({name, value})
+      });
+    }
+    return headers;
+  }
+
   render() {
     return (
       <div>
-        <CollapseHeadersPanel title="General Headers" headers={this.props.generalHeaders}/>
-        <CollapseHeadersPanel title="Response Headers" headers={this.props.responseHeaders}/>
-        <CollapseHeadersPanel title="Request Headers" headers={this.props.requestHeaders}/>
+        <CollapseHeadersPanel title="General Headers" headers={this.getGeneralHeaders()}/>
+        <CollapseHeadersPanel title="Response Headers" headers={this.getResHeaders()}/>
+        <CollapseHeadersPanel title="Request Headers" headers={this.getReqHeaders()}/>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state) => {
-  const record: HttpRecord = state.recordTable.selectedRecord;
-  let generalHeaders = [];
-  let requestHeaders = [];
-  let responseHeaders = [];
-
-  if (record) {
-    generalHeaders.push({name: 'Request URL', value: record.url});
-    generalHeaders.push({name: 'Request Method', value: record.method});
-    generalHeaders.push({name: 'Status Code', value: record.statusCode});
-
-    _.each(record.reqHeaders, (value, name) => {
-      requestHeaders.push({name, value})
-    });
-
-    _.each(record.resHeaders, (value, name) => {
-      responseHeaders.push({name, value});
-    });
-  }
-
-  return {
-    generalHeaders,
-    requestHeaders,
-    responseHeaders
-  }
-};
-
-export default connect(mapStateToProps)(RecordDetails);
+export default RecordDetails;

@@ -1,7 +1,9 @@
 import React from 'react';
-import RecordDetails from "./RecordDetails";
+import RecordDetails from './RecordDetails';
+import BodyPreview from './BodyPreview';
 import {Button, ButtonGroup} from "@blueprintjs/core";
 import './DetailTabs.css';
+import {connect} from "react-redux";
 
 const TabId = {
   TabHeaders: Symbol('TabHeaders'),
@@ -17,7 +19,7 @@ class DetailTabs extends React.Component {
     };
   }
 
-  isShow = (tabId) => {
+  isShow(tabId) {
     let style = {
       display: 'none'
     };
@@ -25,14 +27,35 @@ class DetailTabs extends React.Component {
       style.display = 'block';
     }
     return style;
-  };
+  }
 
-  onClickTab = (tabId) => {
-    return () => this.setState({activeTab: tabId})
-  };
+  onClickTab(tabId) {
+    return () => this.setState({activeTab: tabId});
+  }
+
+  getBody(fieldName) {
+    const {record} = this.props;
+    if (!record) {
+      return [];
+    }
+    return record[fieldName];
+  }
+
+  getHeaders(fieldName) {
+    const {record} = this.props;
+    if (!record) {
+      return '';
+    }
+    const headers = record[fieldName];
+    if (!headers) {
+      return {};
+    }
+    return headers;
+  }
 
   render() {
     const {activeTab} = this.state;
+    const {record} = this.props;
     return (
       <div>
         <div className="tabButton">
@@ -50,14 +73,27 @@ class DetailTabs extends React.Component {
         </div>
         <div className="tabPanel">
           <div style={this.isShow(TabId.TabHeaders)}>
-            <RecordDetails></RecordDetails>
+            <RecordDetails record={record}/>
           </div>
-          <div style={this.isShow(TabId.TabRequestBody)}></div>
-          <div style={this.isShow(TabId.TabResponseBody)}></div>
+          <div style={this.isShow(TabId.TabResponseBody)} >
+            <BodyPreview bodyBuffers={this.getBody('resBody')}
+                         headers={this.getHeaders('resHeaders')}/>
+          </div>
+          <div style={this.isShow(TabId.TabRequestBody)}>
+            <BodyPreview bodyBuffers={this.getBody('reqBody')}
+                         headers={this.getHeaders('reqHeaders')}/>
+          </div>
         </div>
       </div>
     );
   }
 }
 
-export default DetailTabs;
+const mapStateToProps = (state) => {
+  const record = state.recordTable.selectedRecord;
+  return {
+    record
+  }
+};
+
+export default connect(mapStateToProps)(DetailTabs);
