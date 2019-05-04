@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import HttpRecord from "../core/proxy/HttpRecord";
-import {Button, Collapse} from '@blueprintjs/core';
+import {Alignment, Button, Collapse} from '@blueprintjs/core';
 import _ from 'lodash';
 import'./RecordPage.css';
 
@@ -44,11 +44,18 @@ class CollapseHeadersPanel extends React.Component{
     this.setState({isOpen: !this.state.isOpen});
   };
 
+  getIcon = () => {
+    return this.state.isOpen ? 'chevron-down' : 'chevron-up';
+  };
+
   render() {
     const {title, headers} = this.props;
     return (
       <div>
-        <Button className="collapsePanelTitle" onClick={this.handleTitleClick}>{title}</Button>
+        <Button className="collapsePanelTitle"
+                onClick={this.handleTitleClick}
+                icon={this.getIcon()}
+                alignText={Alignment.LEFT}>{title}</Button>
         <Collapse isOpen={this.state.isOpen}>
           <HeaderDetail headers={headers}/>
         </Collapse>
