@@ -1,0 +1,12 @@
+.tabButton {
+  margin: auto;
+  width: 50%;
+}
+
+.tabPanel {
+  border-style: solid;
+  border-radius: 3px;
+  border-color: silver;
+  border-width: 1px;
+  padding: 5px;
+}

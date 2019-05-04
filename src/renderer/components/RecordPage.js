@@ -2,8 +2,8 @@ import React from 'react';
 import {withRouter} from 'react-router';
 import RecordTable from './RecordTable';
 import './RecordPage.css';
-import RecordDetails from './RecordDetails';
 import {connect} from "react-redux";
+import DetailTabs from "./DetailTabs";
 
 class RecordPage extends React.Component {
   render() {
@@ -17,7 +17,7 @@ class RecordPage extends React.Component {
           <RecordTable width={rightWidth - 10} height={height}/>
         </div>
         <div className="leftPanel" style={{width: leftWidth, height: '100%'}}>
-          <RecordDetails/>
+          <DetailTabs/>
         </div>
       </div>
     );
