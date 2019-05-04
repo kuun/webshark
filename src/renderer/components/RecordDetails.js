@@ -55,7 +55,9 @@ class CollapseHeadersPanel extends React.Component{
         <Button className="collapsePanelTitle"
                 onClick={this.handleTitleClick}
                 icon={this.getIcon()}
-                alignText={Alignment.LEFT}>{title}</Button>
+                alignText={Alignment.LEFT}
+                small={true}
+                fill={true}>{title}</Button>
         <Collapse isOpen={this.state.isOpen}>
           <HeaderDetail headers={headers}/>
         </Collapse>

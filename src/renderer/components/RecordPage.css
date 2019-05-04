@@ -11,19 +11,11 @@
   overflow: auto;
 }
 
-.collapsePanelTitle {
-  width: 100%;
-  min-height: 24px !important; /* override blueprint button height */
-  margin-bottom: 5px;
-}
-
 .detailWrap {
   word-wrap: break-word;
 }
 
 .detailBlock {
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-bottom: 5px;
+  padding: 5px;
 }
 
