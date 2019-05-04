@@ -35,11 +35,11 @@ class DetailTabs extends React.Component {
     const {activeTab} = this.state;
     return (
       <div>
-        <div>
-          <ButtonGroup fill={true}>
+        <div className="tabButton">
+          <ButtonGroup>
             <Button small={true}
                     active={activeTab === TabId.TabHeaders}
-                    onClick={this.onClickTab(TabId.TabHeaders)} >Headers</Button>
+                    onClick={this.onClickTab(TabId.TabHeaders)}>Headers</Button>
             <Button small={true}
                     active={activeTab === TabId.TabRequestBody}
                     onClick={this.onClickTab(TabId.TabRequestBody)}>Request body</Button>

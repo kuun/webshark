@@ -8,7 +8,7 @@ import DetailTabs from "./DetailTabs";
 class RecordPage extends React.Component {
   render() {
     const {width, height} = this.props.windowSize;
-    const leftWidth = 300;
+    const leftWidth = 400;
     const rightWidth = width - leftWidth - 15;
 
     return (
