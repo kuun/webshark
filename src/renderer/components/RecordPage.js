@@ -2,25 +2,40 @@ import React from 'react';
 import {withRouter} from 'react-router';
 import RecordTable from './RecordTable';
 import './RecordPage.css';
-import {connect} from "react-redux";
-import DetailTabs from "./DetailTabs";
+import {connect} from 'react-redux';
+import DetailTabs from './DetailTabs';
+import SplitPane from 'react-split-pane';
 
 class RecordPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      rightWidth: 400,
+    };
+  }
+
   render() {
     const {width, height} = this.props.windowSize;
-    const leftWidth = 400;
-    const rightWidth = width - leftWidth - 15;
+    // const leftWidth = 400;
+    const leftWidth = width - this.state.rightWidth;
 
     return (
-      <div style={{width: '100%', height: '100%'}}>
-        <div className="rightPanel" style={{width: rightWidth, height: '100%'}}>
-          <RecordTable width={rightWidth - 10} height={height}/>
+      <SplitPane split="vertical" defaultSize={400} primary="second"
+      onChange={this.onChange}>
+        <div>
+          <RecordTable width={leftWidth} height={height}/>
         </div>
-        <div className="leftPanel" style={{width: leftWidth, height: '100%'}}>
+        <div className="detailBlock detailWrap">
           <DetailTabs/>
         </div>
-      </div>
+      </SplitPane>
     );
+  }
+
+  onChange = (size) => {
+    this.setState({
+      rightWidth: size,
+    });
   }
 }
 
