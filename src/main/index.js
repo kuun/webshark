@@ -60,3 +60,7 @@ app.on('activate', () => {
 app.on('ready', () => {
   mainWindow = createMainWindow()
 })
+
+if (module.hot) {
+  module.hot.accept();
+}

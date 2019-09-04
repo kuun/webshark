@@ -24,3 +24,7 @@ window.addEventListener('resize', () => {
 
 // set initialized window size
 store.dispatch(actions.resizeWindow(window.innerWidth, window.innerHeight));
+
+if (module.hot) {
+  module.hot.accept();
+}
