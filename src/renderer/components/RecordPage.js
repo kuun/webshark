@@ -20,7 +20,7 @@ class RecordPage extends React.Component {
     const leftWidth = width - this.state.rightWidth;
 
     return (
-      <SplitPane split="vertical" defaultSize={400} primary="second"
+      <SplitPane split="vertical" defaultSize={400} minSize={340} primary="second"
       onChange={this.onChange}>
         <div>
           <RecordTable width={leftWidth} height={height}/>

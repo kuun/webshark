@@ -1,7 +1,7 @@
 import React from 'react';
 import {Alignment, Button, Collapse} from '@blueprintjs/core';
 import _ from 'lodash';
-import'./RecordPage.css';
+import'./RecordDetails.css';
 
 class HeaderDetail extends React.Component {
   renderRow(header, index) {
@@ -50,8 +50,7 @@ class CollapseHeadersPanel extends React.Component{
     const {title, headers} = this.props;
     return (
       <div>
-        <Button className="collapsePanelTitle"
-                onClick={this.handleTitleClick}
+        <Button onClick={this.handleTitleClick}
                 icon={this.getIcon()}
                 alignText={Alignment.LEFT}
                 small={true}

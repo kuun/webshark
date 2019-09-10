@@ -55,8 +55,10 @@ export class RecordTable extends React.Component {
     });
   }
 
-  onRowSelected = ({ data }) => {
-    this.props.onSelect(data);
+  onRowSelected = (event) => {
+    if (event.node.selected) {
+      this.props.onSelect(event.data);
+    }
   };
 
   getContentType = ({ data }) => {
