@@ -1,39 +1,67 @@
 import React from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { selectRecrod } from "../actions";
-import { Column, Table, SortDirection } from 'react-virtualized';
-import './RecordTable.css';
-import 'react-virtualized/styles.css';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/dist/styles/ag-grid.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import _ from 'lodash';
+
 
 
 export class RecordTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedIndex: -2 // index -1 is used by header
+      defaultColDef: {
+        resizable: true,
+        filter: 'agTextColumnFilter',
+      },
+      columnDefs: [
+        {
+          headerName: 'ID',
+          field: 'id',
+          width: 60,
+        },
+        {
+          headerName: 'Method',
+          field: 'method',
+          width: 90,
+        },
+        {
+          headerName: 'URL',
+          field: 'url',
+          width: 400,
+        }, {
+          headerName: 'Code',
+          field: 'statusCode',
+          width: 80,
+        }, {
+          headerName: 'Content Type',
+          field: 'resHeaders',
+          width: 200,
+          valueGetter: this.getContentType,
+        },
+      ],
+      records: [],
     }
   }
 
-  onRow = ({rowData, index}) => {
-    this.setState({selectedIndex: index});
-    this.props.onSelect(rowData);
+  componentWillReceiveProps(props) {
+    if (props.records.length > this.state.records.length) {
+      this.gridApi.updateRowData({add: _.slice(props.records, this.state.records.length)});
+    }
+    this.setState({
+      records: props.records,
+    });
+  }
+
+  onRowSelected = ({ data }) => {
+    this.props.onSelect(data);
   };
 
-  rowClassName = ({index}) => {
-    if (this.state.selectedIndex === index) {
-      return 'selectedRow'
-
-    }
-    if (index < 0) {
-      return 'headerRow';
-    } else {
-      return index % 2 === 0 ? 'evenRow' : 'oddRow';
-    }
-  };
-
-  getContentType = ({rowData}) => {
-    if (!rowData) return undefined;
-    let columnData = rowData.resHeaders;
+  getContentType = ({ data }) => {
+    if (!data) return undefined;
+    let columnData = data.resHeaders;
     let contentType = columnData ? columnData['content-type'] : undefined;
     if (!contentType) return undefined;
     let commaIndex = contentType.indexOf(';');
@@ -44,64 +72,45 @@ export class RecordTable extends React.Component {
     }
   };
 
-  render() {
-    const rowGetter = ({index}) => this.props.records[index];
+  getRowNodeId = (data) => {
+    return data.id;
+  }
 
+  onGridReady = (params) => {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  };
+
+  render() {
     return (
-      <Table
-        headerHeight={28}
-        width={this.props.width}
-        height={this.props.height}
-        className="Table"
-        headerClassName="tableHeader"
-        rowClassName={this.rowClassName}
-        rowHeight={28}
-        rowGetter={rowGetter}
-        rowCount={this.props.rowCount}
-        sortDirection={SortDirection.ASC}
-        onRowClick={this.onRow}
+      <div
+        className="ag-theme-balham"
+        style={{
+          height: this.props.height,
+          width: this.props.width
+        }}
         >
-        <Column
-          label="ID"
-          dataKey="id"
-          width={60}
-        />
-        <Column
-          label="Method"
-          dataKey="method"
-          width={90}
-        />
-        <Column
-          width={400}
-          label="URL"
-          dataKey="url"
-          flexGrow={1}
-        />
-        <Column
-          width={60}
-          label="Code"
-          dataKey="statusCode"
-        />
-        <Column
-          width={210}
-          label="Content Type"
-          dataKey="resHeaders"
-          cellDataGetter={this.getContentType}
-        />
-      </Table>
+        <AgGridReact
+          columnDefs={this.state.columnDefs}
+          defaultColDef={this.state.defaultColDef}
+          rowData={[]}
+          getRowNodeId={this.getRowNodeId}
+          onGridReady={this.onGridReady}
+          rowSelection="single"
+          onRowSelected={this.onRowSelected}
+          >
+        </AgGridReact>
+      </div>
     );
   }
 
 }
 
 const mapStateToProps = state => {
-  const {records, selectedRecord} = state.recordTable;
+  const { records } = state.recordTable;
 
-  const rowCount = records.length;
   return {
     records,
-    selectedRecord,
-    rowCount
   }
 };
 
