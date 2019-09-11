@@ -16,15 +16,14 @@
     "lodash": "^4.17.15",
     "node-forge": "^0.7.6",
     "prop-types": "^15.6.2",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "react-redux": "^5.0.7",
     "react-resizable": "^1.7.5",
     "react-router-dom": "^4.3.1",
+    "react-spaces": "^0.1.14",
     "react-split-pane": "^0.1.87",
-    "react-virtualized": "^9.21.0",
-    "redux": "^4.0.1",
-    "source-map-support": "^0.5.9"
+    "redux": "^4.0.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.1.0",
@@ -40,6 +39,7 @@
     "flow-bin": "^0.83.0",
     "flow-typed": "^2.5.1",
     "jest": "^24.1.0",
+    "source-map-support": "^0.5.13",
     "webpack": "^4.16.5"
   },
   "resolutions": {
