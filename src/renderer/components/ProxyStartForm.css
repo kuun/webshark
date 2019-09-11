@@ -1,15 +1,15 @@
-.proxy-start-form {
-  width: 400px;
-}
-
 .proxy-port-input {
   width: 100%;
 }
 
 #proxyStartForm > div > label {
-  width: 150px;
+  width: 120px;
 }
 
 #proxyStartForm input {
   width: 300px;
+}
+
+.proxyStartButton {
+  margin-left: 275px;
 }

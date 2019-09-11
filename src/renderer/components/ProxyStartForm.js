@@ -78,12 +78,12 @@ class ProxyStartForm extends React.Component {
                      inputProps={{name: "keyFile"}}
                      onInputChange={this.handleFileInputChange}/>
         </FormGroup>
-        <FormGroup label="HTTPS certificate" labelFor="certFile" labelInfo="*" inline>
-          <FileInput text={certFile ? certFile : 'Choose certificate file...'}
+        <FormGroup className="proxyStartFormLabel" label="HTTPS certificate" labelFor="certFile" labelInfo="*" inline>
+          <FileInput className="proxyStartFormInput" text={certFile ? certFile : 'Choose certificate file...'}
                      inputProps={{name: "certFile"}}
                      onInputChange={this.handleFileInputChange}/>
         </FormGroup>
-        <Button rightIcon="arrow-right" text="Start Proxy Server" onClick={this.handleClick} />
+        <Button className="proxyStartButton" rightIcon="arrow-right" text="Start Proxy Server" onClick={this.handleClick} />
       </div>
     );
   }
