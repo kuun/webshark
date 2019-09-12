@@ -1,11 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { selectRecrod } from "../actions";
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import _ from 'lodash';
-
+import RecordStore from '../stores/RecordStore';
+import {autorun, observer} from 'mobx-react';
 
 
 export class RecordTable extends React.Component {
@@ -42,22 +41,12 @@ export class RecordTable extends React.Component {
           valueGetter: this.getContentType,
         },
       ],
-      records: [],
     }
-  }
-
-  componentWillReceiveProps(props) {
-    if (props.records.length > this.state.records.length) {
-      this.gridApi.updateRowData({add: _.slice(props.records, this.state.records.length)});
-    }
-    this.setState({
-      records: props.records,
-    });
   }
 
   onRowSelected = (event) => {
     if (event.node.selected) {
-      this.props.onSelect(event.data);
+      RecordStore.setSelectedRecord(event.data);
     }
   };
 
@@ -81,6 +70,13 @@ export class RecordTable extends React.Component {
   onGridReady = (params) => {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+
+    autorun(() => {
+      let currentRecords = this.gridApi.getModel();
+      if (RecordStore.records.length > currentRecords.length) {
+        this.gridApi.updateRowData({add: _.slice(RecordStore.records, currentRecords.length)});
+      }
+    }, { delay: 300 });
   };
 
   render() {
@@ -108,20 +104,4 @@ export class RecordTable extends React.Component {
 
 }
 
-const mapStateToProps = state => {
-  const { records } = state.recordTable;
-
-  return {
-    records,
-  }
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onSelect: (record) => {
-      dispatch(selectRecrod(record));
-    }
-  }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(RecordTable);
+export default observer(RecordTable);

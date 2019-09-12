@@ -2,6 +2,8 @@ import React from 'react';
 import {Alignment, Button, Collapse} from '@blueprintjs/core';
 import _ from 'lodash';
 import'./RecordDetails.css';
+import RecordStore from '../stores/RecordStore';
+import {observer} from 'mobx-react';
 
 class HeaderDetail extends React.Component {
   renderRow(header, index) {
@@ -69,7 +71,7 @@ class RecordDetails extends React.Component {
   }
 
   getGeneralHeaders() {
-    const {record} = this.props;
+    const record = RecordStore.selectedRecord;
     let generalHeaders = [];
     if (record) {
       generalHeaders.push({name: 'Request URL', value: record.url});
@@ -80,7 +82,7 @@ class RecordDetails extends React.Component {
   }
 
   getReqHeaders() {
-    const {record} = this.props;
+    const record = RecordStore.selectedRecord;
     let headers = [];
     if (record) {
       _.each(record.reqHeaders, (value, name) => {
@@ -91,7 +93,7 @@ class RecordDetails extends React.Component {
   }
 
   getResHeaders() {
-    const {record} = this.props;
+    const record = RecordStore.selectedRecord;
     let headers = [];
     if (record) {
       _.each(record.resHeaders, (value, name) => {
@@ -112,4 +114,4 @@ class RecordDetails extends React.Component {
   }
 }
 
-export default RecordDetails;
+export default observer(RecordDetails);

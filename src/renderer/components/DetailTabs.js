@@ -3,7 +3,8 @@ import RecordDetails from './RecordDetails';
 import BodyPreview from './BodyPreview';
 import {Button, ButtonGroup} from "@blueprintjs/core";
 import './DetailTabs.css';
-import {connect} from "react-redux";
+import { observer } from 'mobx-react';
+import RecordStore from '../stores/RecordStore';
 
 const TabId = {
   TabHeaders: Symbol('TabHeaders'),
@@ -34,7 +35,7 @@ class DetailTabs extends React.Component {
   }
 
   getBody(fieldName) {
-    const {record} = this.props;
+    const record = RecordStore.selectedRecord;
     if (!record) {
       return [];
     }
@@ -42,7 +43,7 @@ class DetailTabs extends React.Component {
   }
 
   getHeaders(fieldName) {
-    const {record} = this.props;
+    const record = RecordStore.selectedRecord;
     if (!record) {
       return '';
     }
@@ -55,7 +56,6 @@ class DetailTabs extends React.Component {
 
   render() {
     const {activeTab} = this.state;
-    const {record} = this.props;
     return (
       <div>
         <div className="tabButton">
@@ -73,7 +73,7 @@ class DetailTabs extends React.Component {
         </div>
         <div className="tabPanel">
           <div style={this.isShow(TabId.TabHeaders)}>
-            <RecordDetails record={record}/>
+            <RecordDetails record={this.record}/>
           </div>
           <div style={this.isShow(TabId.TabResponseBody)} >
             <BodyPreview bodyBuffers={this.getBody('resBody')}
@@ -89,11 +89,4 @@ class DetailTabs extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  const record = state.recordTable.selectedRecord;
-  return {
-    record
-  }
-};
-
-export default connect(mapStateToProps)(DetailTabs);
+export default observer(DetailTabs);
