@@ -1,8 +1,7 @@
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QMainWindow, QMenu, QAction,
-                             QDockWidget, QTabWidget, QListWidget)
+                             QTabWidget)
 
-from ui.ca_manage_tab import CAManageTab
+from ui.ca_dialog import CADialog
 
 
 class MainWindow(QMainWindow):
@@ -16,7 +15,6 @@ class MainWindow(QMainWindow):
         self.tab_widget = QTabWidget(self)
         self.tab_widget.setTabsClosable(True)
         self.setCentralWidget(self.tab_widget)
-        self.tab_widget.addTab(CAManageTab(self.tab_widget), self.tr('CA Management'))
 
         self.setMinimumSize(1000, 700)
         self.setWindowTitle('Webshark')
@@ -31,6 +29,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(connect_act)
 
     def open_ca_dialog(self):
-        pass
+        dialog = CADialog(self)
+        dialog.show()
 
 
