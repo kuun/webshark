@@ -1,11 +1,9 @@
-import datetime
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QFormLayout, QLabel, QLineEdit
 from cryptography.x509 import Certificate, Name, NameOID, NameAttribute
 
 from container import Container
-from service.ca_service import CAService
+from service.ca.ca_service import CAService
 
 
 def get_attr_value(subject: Name, oid):
@@ -25,6 +23,7 @@ class CADialog(QDialog):
     def __init_ui(self):
         self.setWindowModality(Qt.ApplicationModal)
         self.setModal(True)
+        self.setWindowTitle(self.tr('Certificate information'))
 
         cert: Certificate = self.ca_service.get_ca_cert()
         subject: Name = cert.subject
