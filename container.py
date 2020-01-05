@@ -5,3 +5,4 @@ from service.ca.ca_service import CAService
 
 class Container(containers.DeclarativeContainer):
     ca_service = providers.Singleton(CAService)
+    #proxy_service = providers.Singleton(ProxyService)
