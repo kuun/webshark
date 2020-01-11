@@ -11,5 +11,3 @@ class ProxyService(Thread):
 
     def run(self):
         self.server.start()
-
-

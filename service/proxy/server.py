@@ -1,13 +1,11 @@
 import asyncio
 import logging
-import socket
-import traceback
 
 from container import Container
-from service.proxy.session import ProxySession
-
+from service.proxy.protocol import RequestProtocol
 
 log = logging.getLogger(__name__)
+
 
 class ProxyServer:
     def __init__(self, laddr, lport):
@@ -18,23 +16,13 @@ class ProxyServer:
         self.sessions = {}
 
     def start(self):
-        self.listen_sock = socket.create_server((self.laddr, self.lport))
-        log.warning("proxy server is started on %s:%s", self.laddr, self.lport)
-        self.listen_sock.setblocking(False)
-        asyncio.run(self.accept())
+        asyncio.run(self.do_start())
 
-    async def accept(self):
+    async def do_start(self):
         loop = asyncio.get_event_loop()
-        while True:
-            try:
-                (conn, addr) = await loop.sock_accept(self.listen_sock)
-                conn.setblocking(False)
-                session = ProxySession(conn)
-                self.sessions[addr] = session
-                session.start()
-            except Exception as e:
-                print('accept error:', traceback.format_exc())
-                return
-
+        self.server = await loop.create_server(lambda: RequestProtocol(), host=self.laddr, port=self.lport)
+        log.warning('proxy server is started on %s:%s', self.laddr, self.lport)
+        await self.server.serve_forever()
+        log.warning('proxy server exit!')
 
 

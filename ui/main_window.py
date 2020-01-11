@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import (QMainWindow, QMenu, QAction,
                              QTabWidget)
 
-from container import Container
 from service.proxy.proxy_service import ProxyService
 from ui.ca_dialog import CADialog
 
