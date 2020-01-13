@@ -6,6 +6,10 @@ from PyQt5.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
 
+# FORMAT = '%(asctime)s %(levelname)s %(module)s:%(lineno)d: %(message)s'
+# logging.basicConfig(format=FORMAT)
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     app = QApplication(sys.argv)

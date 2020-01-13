@@ -7,11 +7,14 @@ from typing import Optional
 import httptools
 from httptools import HttpParserUpgrade
 
+from container import Container
+
 log = logging.getLogger(__name__)
 
 
 class RequestProtocol(asyncio.Protocol):
     def __init__(self):
+        self.ca_service = Container.ca_service()
         self.parser = httptools.HttpRequestParser(self)
         self.server_transport: transports.Transport = None
         self.server_transports = {}
@@ -21,7 +24,8 @@ class RequestProtocol(asyncio.Protocol):
         self.server_port = None
         self.need_write_version = True
         self.has_body = False
-        self.is_chunked  = False
+        self.is_chunked = False
+        self.is_ssl = True
 
     def connection_made(self, transport: transports.BaseTransport) -> None:
         self.client_transport = transport
@@ -37,6 +41,7 @@ class RequestProtocol(asyncio.Protocol):
         super().resume_writing()
 
     def data_received(self, data: bytes) -> None:
+        log.debug('received data: %s', data)
         try:
             self.parser.feed_data(data)
         except HttpParserUpgrade as e:
@@ -58,25 +63,35 @@ class RequestProtocol(asyncio.Protocol):
         if self.is_chunked:
             self.write_to_server(b'0\r\n\r\n')
 
-    def on_url(self, data):
+    def on_url(self, data: bytes):
         method = self.parser.get_method()
         if method != b'CONNECT':
+            if self.is_ssl:
+                self.writelines_to_server([method, b' ', data, b' '])
+                return
             url = httptools.parse_url(data)
             if url.host is None:
-                log.debug('can not find target host, close client: %s', self.client_sock.getpeername())
+                log.debug('can not find target host, close client: %s', self.client_transport.get_extra_info('socket').getpeername())
                 self.client_transport.close()
                 return
             self.server_addr = url.host.decode('utf-8')
             self.server_port = 80 if url.port is None else url.port
-            connect_task = asyncio.create_task(self.connect_server(self.server_addr, self.server_port))
-            connect_task.add_done_callback(self.on_server_connected)
-            self.writelines_to_server([self.parser.get_method(),
+            asyncio.create_task(self.connect_server(self.server_addr, self.server_port))
+            self.writelines_to_server([method,
                                        b' ',
                                        url.path,
                                        b' '])
-        else:
-            # TODO: support connect method
+            return
+        self.is_ssl = True
+        index = data.rfind(b':')
+        if index == -1:
+            log.error('invalid target address, data: %s', data)
             self.client_transport.close()
+            return
+        log.debug('data: %s', data)
+        self.server_addr = data[:index].decode('utf-8')
+        self.server_port = int(data[index + 1:])
+        asyncio.create_task(self.connect_server(self.server_addr, self.server_port))
 
     def on_header(self, name: bytes, value: bytes):
         if self.need_write_version:
@@ -118,20 +133,40 @@ class RequestProtocol(asyncio.Protocol):
         if self.server_transport is not None:
             return
         loop = asyncio.get_event_loop()
-        transport, _ = await loop.create_connection(lambda: ResponseProtocol(self.client_transport),
-                                                    host=host, port=port)
-        self.server_transport = transport
-
-    def on_server_connected(self, future):
-        ex = future.exception()
-        if ex is not None:
+        try:
+            transport, _ = await loop.create_connection(lambda: ResponseProtocol(self.client_transport),
+                                                        host=host, port=port, ssl=self.is_ssl)
+            self.server_transport = transport
+            self.is_server_connected = True
+            if self.is_ssl:
+                response = b'HTTP/1.1 200 Connection established\r\n\r\n'
+                self.client_transport.write(response)
+                asyncio.create_task(self.upgrade_client_socket())
+            else:
+                log.debug(self.cached_data)
+                self.server_transport.writelines(self.cached_data)
+                self.cached_data = []
+        except Exception as ex:
+            response = b'HTTP/1.1 503 Service Unavailable\r\n\r\n'
+            self.client_transport.write(response)
             self.client_transport.close()
             log.error('failed to connect to server %s:%s, error: %s', self.server_addr, self.server_port, ex)
-            return
-        self.is_server_connected = True
-        log.debug(self.cached_data)
-        self.server_transport.writelines(self.cached_data)
-        self.cached_data = []
+
+    async def upgrade_client_socket(self):
+        try:
+            log.debug('try to upgrade connection to tls, client: %s',
+                      self.client_transport.get_extra_info('socket').getpeername())
+            loop = asyncio.get_event_loop()
+            context = self.ca_service.get_ssl_context(self.server_addr)
+            self.client_transport = await loop.start_tls(self.client_transport,
+                                                         protocol=self, sslcontext=context,
+                                                         server_side=True)
+            self.server_transport.get_protocol().client_transport = self.client_transport
+            log.debug('upgrade to tls success, server: %s:%s', self.server_addr, self.server_port)
+        except Exception as ex:
+            log.error('failed to upgrade transport to tls, server: %s:%s, error: %s',
+                      self.server_addr, self.server_port, ex)
+            self.client_transport.close()
 
 
 class ResponseProtocol(asyncio.Protocol):
@@ -157,6 +192,7 @@ class ResponseProtocol(asyncio.Protocol):
         try:
             self.parser.feed_data(data)
         except Exception as e:
+            log.debug('data: %s', data)
             log.error('failed to parse http response data, error: %s', traceback.format_exc())
             self.server_transport.close()
             self.client_transport.close()
