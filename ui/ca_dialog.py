@@ -23,7 +23,7 @@ class CADialog(QDialog):
     def __init_ui(self):
         self.setWindowModality(Qt.ApplicationModal)
         self.setModal(True)
-        self.setWindOPowTitle(self.tr('Certificate information'))
+        self.setWindowTitle(self.tr('Certificate information'))
 
         cert: Certificate = self.ca_service.get_ca_cert()
         subject: Name = cert.subject
