@@ -30,61 +30,20 @@ def load_ca():
         return None, None
 
 
-def generate_ca(key_size=2048,
-                cert_expire=3650,
-                country_name='US',
-                state_name='California',
-                city_name='San Francisco',
-                organization_name='Example Company',
-                common_name='example.com'):
-    key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=key_size,
-        backend=default_backend()
-    )
-    subject = issuer = x509.Name([
-        x509.NameAttribute(NameOID.COUNTRY_NAME, country_name),
-        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state_name),
-        x509.NameAttribute(NameOID.LOCALITY_NAME, city_name),
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization_name),
-        x509.NameAttribute(NameOID.COMMON_NAME, common_name),
-    ])
-    now = datetime.datetime.utcnow()
-    cert = x509.CertificateBuilder().subject_name(
-        subject
-    ).issuer_name(
-        issuer
-    ).public_key(
-        key.public_key()
-    ).serial_number(
-        x509.random_serial_number()
-    ).not_valid_before(
-        now
-    ).not_valid_after(
-        now + datetime.timedelta(days=cert_expire)
-    ).add_extension(
-        x509.SubjectAlternativeName([x509.DNSName('localhost')]),
-        critical=False,
-    ).sign(key, hashes.SHA256(), default_backend())
-
-    # write key and certificate to file
-    with open(CA_KEY_FILE, 'wb') as f:
-        f.write(key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=serialization.BestAvailableEncryption(CA_KEY_PASSWORD),
-        ))
-    with open(CA_CERT_FILE, 'wb') as f:
-        f.write(cert.public_bytes(serialization.Encoding.PEM))
-    return key, cert
-
-
 
 class CAService:
     def __init__(self):
         self.ca_key, self.ca_cert = load_ca()
+        self.ca_issuer = x509.Name([
+            x509.NameAttribute(NameOID.COUNTRY_NAME, 'US'),
+            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, 'California'),
+            x509.NameAttribute(NameOID.LOCALITY_NAME, 'San Francisco'),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, 'Webshark'),
+            x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, 'Webshark'),
+            x509.NameAttribute(NameOID.COMMON_NAME, 'Webshark Test Root CA'),
+        ])
         if self.ca_key is None or self.ca_cert is None:
-            self.ca_key, self.ca_cert = generate_ca()
+            self.ca_key, self.ca_cert = self.generate_ca(key_size=4096)
         self.ssl_contexts = {}
 
     def get_ca_cert(self):
@@ -104,30 +63,61 @@ class CAService:
         self.ssl_contexts[hostname] = context
         return context
 
-    def create_certificate(self, hostname, cert_expire=3650, country_name='US',
-                           state_name='California',
-                           city_name='San Francisco',
-                           organization_name='Example Company',
-                           ca_common_name='example.com'):
-        issuer = x509.Name([
-            x509.NameAttribute(NameOID.COUNTRY_NAME, country_name),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state_name),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, city_name),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization_name),
-            x509.NameAttribute(NameOID.COMMON_NAME, ca_common_name),
-        ])
+    def generate_ca(self, key_size=2048,
+                    cert_expire=3650):
+        key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=key_size,
+            backend=default_backend()
+        )
+        subject = issuer = self.ca_issuer
+        now = datetime.datetime.utcnow()
+        cert = x509.CertificateBuilder().subject_name(
+            subject
+        ).issuer_name(
+            issuer
+        ).public_key(
+            key.public_key()
+        ).serial_number(
+            x509.random_serial_number()
+        ).not_valid_before(
+            now
+        ).not_valid_after(
+            now + datetime.timedelta(days=cert_expire)
+        ).add_extension(
+            x509.SubjectKeyIdentifier.from_public_key(key.public_key()), critical=False
+        ).add_extension(
+            x509.AuthorityKeyIdentifier.from_issuer_public_key(key.public_key()), critical=False
+        ).add_extension(
+            x509.BasicConstraints(True, None), critical=True,
+        ).sign(key, hashes.SHA256(), default_backend())
+
+        # write key and certificate to file
+        with open(CA_KEY_FILE, 'wb') as f:
+            f.write(key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.BestAvailableEncryption(CA_KEY_PASSWORD),
+            ))
+        with open(CA_CERT_FILE, 'wb') as f:
+            f.write(cert.public_bytes(serialization.Encoding.PEM))
+        log.warning('new ca generated.')
+        return key, cert
+
+    def create_certificate(self, hostname, cert_expire=3650):
         subject = x509.Name([
-            x509.NameAttribute(NameOID.COUNTRY_NAME, country_name),
-            x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state_name),
-            x509.NameAttribute(NameOID.LOCALITY_NAME, city_name),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization_name),
+            self.ca_issuer.get_attributes_for_oid(NameOID.COUNTRY_NAME)[0],
+            self.ca_issuer.get_attributes_for_oid(NameOID.STATE_OR_PROVINCE_NAME)[0],
+            self.ca_issuer.get_attributes_for_oid(NameOID.LOCALITY_NAME)[0],
+            self.ca_issuer.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0],
+            self.ca_issuer.get_attributes_for_oid(NameOID.ORGANIZATIONAL_UNIT_NAME)[0],
             x509.NameAttribute(NameOID.COMMON_NAME, hostname),
         ])
         now = datetime.datetime.utcnow()
         cert = x509.CertificateBuilder().subject_name(
             subject
         ).issuer_name(
-            issuer
+            self.ca_issuer
         ).public_key(
             self.ca_key.public_key()
         ).serial_number(
@@ -142,10 +132,10 @@ class CAService:
         ).sign(self.ca_key, hashes.SHA256(), default_backend())
         with open(self.build_cert_filename(hostname), 'wb') as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
+        log.info('succeed to generate certificate for host: %s', hostname)
 
     @staticmethod
     def build_cert_filename(hostname):
         return 'config/cached_certs/' + hostname + '-cert.pem'
-
 
 
