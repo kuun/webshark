@@ -2,3 +2,4 @@ env/
 .gradle/
 .idea/
 .vs/
+*.pyc
