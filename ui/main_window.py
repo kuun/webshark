@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import (QMainWindow, QMenu, QAction,
-                             QTabWidget)
+import logging
+
+from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QTabWidget
 
 from container import Container
-
 from ui.ca_dialog import CADialog
 
+log = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -42,4 +43,8 @@ class MainWindow(QMainWindow):
         proxy_service = Container.proxy_service()
         proxy_service.start('127.0.0.1', 8080)
 
-
+    def closeEvent(self, event):
+        log.debug('close main window.')
+        proxy_service = Container.proxy_service()
+        proxy_service.close()
+        event.accept()
