@@ -1,13 +1,11 @@
-import asyncio
-from threading import Thread
-
 from service.proxy.server import ProxyServer
 
 
-class ProxyService(Thread):
-    def __init__(self, laddr, lport):
+class ProxyService:
+    def __init__(self, ca_service):
         super().__init__()
-        self.server = ProxyServer(laddr, lport)
+        self.ca_service = ca_service
 
-    def run(self):
+    def start(self, laddr, lport):
+        self.server = ProxyServer(self.ca_service, laddr, lport)
         self.server.start()

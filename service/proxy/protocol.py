@@ -7,14 +7,13 @@ from typing import Optional
 import httptools
 from httptools import HttpParserUpgrade
 
-from container import Container
-
 log = logging.getLogger(__name__)
 
 
 class RequestProtocol(asyncio.Protocol):
-    def __init__(self):
-        self.ca_service = Container.ca_service()
+    def __init__(self, ca_service, loop):
+        self.ca_service = ca_service
+        self.loop = loop
         self.parser = httptools.HttpRequestParser(self)
         self.server_transport: transports.Transport = None
         self.server_transports = {}
@@ -76,7 +75,7 @@ class RequestProtocol(asyncio.Protocol):
                 return
             self.server_addr = url.host.decode('utf-8')
             self.server_port = 80 if url.port is None else url.port
-            asyncio.create_task(self.connect_server(self.server_addr, self.server_port))
+            self.loop.create_task(self.connect_server(self.server_addr, self.server_port))
             self.writelines_to_server([method,
                                        b' ',
                                        url.path,
@@ -91,7 +90,7 @@ class RequestProtocol(asyncio.Protocol):
         log.debug('data: %s', data)
         self.server_addr = data[:index].decode('utf-8')
         self.server_port = int(data[index + 1:])
-        asyncio.create_task(self.connect_server(self.server_addr, self.server_port))
+        self.loop.create_task(self.connect_server(self.server_addr, self.server_port))
 
     def on_header(self, name: bytes, value: bytes):
         if self.need_write_version:
@@ -132,16 +131,15 @@ class RequestProtocol(asyncio.Protocol):
     async def connect_server(self, host, port):
         if self.server_transport is not None:
             return
-        loop = asyncio.get_event_loop()
         try:
-            transport, _ = await loop.create_connection(lambda: ResponseProtocol(self.client_transport),
+            transport, _ = await self.loop.create_connection(lambda: ResponseProtocol(self.client_transport),
                                                         host=host, port=port, ssl=self.is_ssl)
             self.server_transport = transport
             self.is_server_connected = True
             if self.is_ssl:
                 response = b'HTTP/1.1 200 Connection established\r\n\r\n'
                 self.client_transport.write(response)
-                asyncio.create_task(self.upgrade_client_socket())
+                self.loop.create_task(self.upgrade_client_socket())
             else:
                 log.debug(self.cached_data)
                 self.server_transport.writelines(self.cached_data)
@@ -156,9 +154,8 @@ class RequestProtocol(asyncio.Protocol):
         try:
             log.debug('try to upgrade connection to tls, client: %s',
                       self.client_transport.get_extra_info('socket').getpeername())
-            loop = asyncio.get_event_loop()
             context = self.ca_service.get_ssl_context(self.server_addr)
-            self.client_transport = await loop.start_tls(self.client_transport,
+            self.client_transport = await self.loop.start_tls(self.client_transport,
                                                          protocol=self, sslcontext=context,
                                                          server_side=True)
             self.server_transport.get_protocol().client_transport = self.client_transport

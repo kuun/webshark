@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QMainWindow, QMenu, QAction,
                              QTabWidget)
 
-from service.proxy.proxy_service import ProxyService
+from container import Container
+
 from ui.ca_dialog import CADialog
 
 
@@ -38,7 +39,7 @@ class MainWindow(QMainWindow):
         dialog.show()
 
     def start_proxy(self):
-        proxy_service = ProxyService('127.0.0.1', 8080)
-        proxy_service.start()
+        proxy_service = Container.proxy_service()
+        proxy_service.start('127.0.0.1', 8080)
 
 

@@ -1,28 +1,30 @@
 import asyncio
 import logging
+from threading import Thread
+import traceback
 
-from container import Container
 from service.proxy.protocol import RequestProtocol
 
 log = logging.getLogger(__name__)
 
 
-class ProxyServer:
-    def __init__(self, laddr, lport):
-        self.ca_service = Container.ca_service()
+class ProxyServer(Thread):
+    def __init__(self, ca_service, laddr, lport):
+        super().__init__()
+        self.ca_service = ca_service
         self.laddr = laddr
         self.lport = lport
         self.listen_sock = None
         self.sessions = {}
 
-    def start(self):
-        asyncio.run(self.do_start())
-
-    async def do_start(self):
-        loop = asyncio.get_event_loop()
-        self.server = await loop.create_server(lambda: RequestProtocol(), host=self.laddr, port=self.lport)
-        log.warning('proxy server is started on %s:%s', self.laddr, self.lport)
-        await self.server.serve_forever()
+    def run(self):
+        self.loop = asyncio.new_event_loop()
+        corotine = self.loop.create_server(lambda: RequestProtocol(self.ca_service, self.loop), host=self.laddr, port=self.lport)
+        self.server = self.loop.run_until_complete(corotine)
+        try:
+            log.warning('proxy server is started on %s:%s', self.laddr, self.lport)
+            self.loop.run_forever()
+        except Exception:
+            log.error('event loop exit, error: %s', traceback.format_exc())
         log.warning('proxy server exit!')
-
 

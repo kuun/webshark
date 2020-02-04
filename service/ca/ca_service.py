@@ -5,35 +5,21 @@ import traceback
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.x509 import NameOID
 
-CA_KEY_FILE = 'config/ca-key.pem'
-CA_CERT_FILE = 'config/ca-cert.pem'
-CA_KEY_PASSWORD = b'webshark'
-
 log = logging.getLogger(__name__)
-
-def load_ca():
-    try:
-        with open(CA_KEY_FILE, 'rb') as file:
-            pem_data = file.read()
-        ca_key = load_pem_private_key(pem_data, CA_KEY_PASSWORD, default_backend())
-        with open(CA_CERT_FILE, 'rb') as file:
-            pem_data = file.read()
-        ca_cert = x509.load_pem_x509_certificate(pem_data, default_backend())
-        return ca_key, ca_cert
-    except Exception as e:
-        print('can not load ca key and cert, error:', traceback.format_exc())
-        return None, None
-
 
 
 class CAService:
-    def __init__(self):
-        self.ca_key, self.ca_cert = load_ca()
+    def __init__(self, config_service):
+        self.config_dir = config_service.get_config_dir()
+        self.CA_KEY_FILE = self.config_dir + '/ca-key.pem'
+        self.CA_CERT_FILE = self.config_dir + '/ca-cert.pem'
+        self.CA_KEY_PASSWORD = b'webshark'
+        self.ca_key, self.ca_cert = self.__load_ca()
         self.ca_issuer = x509.Name([
             x509.NameAttribute(NameOID.COUNTRY_NAME, 'US'),
             x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, 'California'),
@@ -59,7 +45,7 @@ class CAService:
 
         self.create_certificate(hostname)
         context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(self.build_cert_filename(hostname), CA_KEY_FILE, CA_KEY_PASSWORD)
+        context.load_cert_chain(self.build_cert_filename(hostname), self.CA_KEY_FILE, self.CA_KEY_PASSWORD)
         self.ssl_contexts[hostname] = context
         return context
 
@@ -93,13 +79,13 @@ class CAService:
         ).sign(key, hashes.SHA256(), default_backend())
 
         # write key and certificate to file
-        with open(CA_KEY_FILE, 'wb') as f:
+        with open(self.CA_KEY_FILE, 'wb') as f:
             f.write(key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=serialization.BestAvailableEncryption(CA_KEY_PASSWORD),
+                encryption_algorithm=serialization.BestAvailableEncryption(self.CA_KEY_PASSWORD),
             ))
-        with open(CA_CERT_FILE, 'wb') as f:
+        with open(self.CA_CERT_FILE, 'wb') as f:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
         log.warning('new ca generated.')
         return key, cert
@@ -134,8 +120,18 @@ class CAService:
             f.write(cert.public_bytes(serialization.Encoding.PEM))
         log.info('succeed to generate certificate for host: %s', hostname)
 
-    @staticmethod
-    def build_cert_filename(hostname):
-        return 'config/cached_certs/' + hostname + '-cert.pem'
+    def build_cert_filename(self, hostname):
+        return '{}/cached_certs/{}-cert.pem'.format(self.config_dir, hostname)
 
-
+    def __load_ca(self):
+        try:
+            with open(self.CA_KEY_FILE, 'rb') as file:
+                pem_data = file.read()
+            ca_key = load_pem_private_key(pem_data, self.CA_KEY_PASSWORD, default_backend())
+            with open(self.CA_CERT_FILE, 'rb') as file:
+                pem_data = file.read()
+            ca_cert = x509.load_pem_x509_certificate(pem_data, default_backend())
+            return ca_key, ca_cert
+        except Exception:
+            print('can not load ca key and cert, error:', traceback.format_exc())
+            return None, None
