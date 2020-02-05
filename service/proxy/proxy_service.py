@@ -16,4 +16,3 @@ class ProxyService:
             self.server.close()
             self.server.join()
             self.server = None
-        
