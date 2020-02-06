@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QFormLayout, QLineEdit, QSpinBox, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QFormLayout, QLineEdit, QSpinBox, QVBoxLayout, QHBoxLayout, QMessageBox, QGroupBox
 
 from container import Container
 from ui.common.switch_button import SwitchButton
@@ -10,6 +10,8 @@ class ProxySettingsWidget(QWidget):
         self.laddr = '127.0.0.1'
         self.lport = 8080
         self.__init_ui()
+        proxy_service = Container.proxy_service()
+        proxy_service.failed.connect(self.proxy_start_failed)
 
     def __init_ui(self):
         vbox = QVBoxLayout()
@@ -17,10 +19,14 @@ class ProxySettingsWidget(QWidget):
 
         hbox = QHBoxLayout()
         vbox.addLayout(hbox)
+        vbox.addStretch(1)
+
+        group = QGroupBox(self.tr('Proxy server settings'))
+        hbox.addWidget(group)
+        hbox.addStretch(1)
 
         form = QFormLayout()
-        hbox.addLayout(form)
-        hbox.addStretch(1)
+        group.setLayout(form)
 
         self.laddr_edit = QLineEdit(self.laddr, self)
         form.addRow(self.tr('Listen address: '), self.laddr_edit)
@@ -41,3 +47,7 @@ class ProxySettingsWidget(QWidget):
             proxy_service.start(self.laddr, self.lport)
         else:
             proxy_service.close()
+
+    def proxy_start_failed(self, err):
+        self.switch_btn.setChecked(False)
+        QMessageBox.warning(self, self.tr('Can not start proxy server'), str(err))
