@@ -1,6 +1,6 @@
 import unittest
 
-from model.http_session_record import HttpRequest, HttpResponse
+from model.http_session import HttpRequest, HttpResponse
 
 
 class TestHttpRequest(unittest.TestCase):

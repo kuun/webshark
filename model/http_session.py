@@ -74,7 +74,7 @@ class HttpResponse(HttpMessage):
             self.is_invalid = False
             return False
 
-class HttpSessionRecord:
+class HttpSession:
     def __init__(self):
         self.request: HttpRequest = None
         self.response: HttpResponse= None

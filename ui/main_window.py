@@ -7,13 +7,14 @@ from PyQt5.QtCore import Qt
 
 from container import Container
 from ui.ca_dialog import CADialog
+from ui.history.history_view import HistoryView
 from ui.proxy_settings import ProxySettingsWidget
 
 log = logging.getLogger(__name__)
 
 class Navs(enum.Enum):
-    ProxySettings = 1
-    SessionHistory = 2
+    ProxySettings = 0
+    SessionHistory = 1
 
 
 class MainWindow(QMainWindow):
@@ -24,10 +25,18 @@ class MainWindow(QMainWindow):
 
     def __init_ui(self):
         self.stacked_widget = QStackedWidget(self)
-        self.setCentralWidget(self.stacked_widget)
+
         # add proxy settings widget to stack
         self.proxy_settings_widget = ProxySettingsWidget(self)
+        self.proxy_settings_widget.layout().setContentsMargins(0, 0, 0, 0)
         self.stacked_widget.addWidget(self.proxy_settings_widget)
+
+        # add history view to stack
+        self.history_view = HistoryView(self)
+        self.history_view.layout().setContentsMargins(0, 0, 0, 0)
+        self.stacked_widget.addWidget(self.history_view)
+
+        self.setCentralWidget(self.stacked_widget)
 
         self.__init_nav_list()
 
@@ -57,6 +66,8 @@ class MainWindow(QMainWindow):
         item.setData(Qt.UserRole, Navs.SessionHistory)
         item.setFont(font)
 
+        self.nav_list.activated.connect(self.stacked_widget.setCurrentIndex)
+
         dock.setWidget(self.nav_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, dock)
 
@@ -75,7 +86,6 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def handle_nav_changed(self, selected):
-        log.debug('selected nav menu: %s', selected.text())
-        nav = selected.data(Qt.EditRole)
-        if nav == Navs.ProxySettings:
-            self.stacked_widget.setCurrentWidget(self.proxy_settings_widget)
+        nav: Navs = selected.data(Qt.UserRole)
+        self.stacked_widget.setCurrentIndex(nav.value)
+
