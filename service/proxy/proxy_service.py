@@ -6,13 +6,15 @@ from service.proxy.server import ProxyServer
 class ProxyService(QObject):
     failed = pyqtSignal(OSError)
 
-    def __init__(self, ca_service):
+    def __init__(self, ca_service, history_model):
         super().__init__()
         self.ca_service = ca_service
+        self.history_model = history_model
         self.server = None
 
     def start(self, laddr, lport):
         self.server = ProxyServer(self.ca_service, laddr, lport)
+        self.server.set_history_model(self.history_model)
         self.server.failed.connect(self.handle_failed)
         self.server.start()
 

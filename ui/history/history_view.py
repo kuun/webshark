@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView
 
-from model.history_model import HistoryModel
+from container import Container
 
 
 class HistoryView(QWidget):
@@ -12,7 +12,7 @@ class HistoryView(QWidget):
         vbox = QVBoxLayout()
 
         self.table = QTableView()
-        model = HistoryModel()
+        model = Container.history_model()
         self.table.setModel(model)
 
         vbox.addWidget(self.table)

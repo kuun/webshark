@@ -6,14 +6,17 @@ from httptools import HttpRequestParser, HttpResponseParser
 log = logging.getLogger(__name__)
 
 class HttpMessage:
-    def __init__(self, raw_data: list):
+    def __init__(self):
         self.start_time = 0.0
         self.end_time = 0.0
         self.version = ''
         self.content_type = ''
         self.headers = {}
-        self.raw_data = raw_data
         self.is_invalid = False
+        self.raw_data = []
+
+    def add_data(self, data):
+        self.raw_data.append(data)
 
     def parse(self) -> bool:
         pass
@@ -31,8 +34,8 @@ class HttpMessage:
 
 
 class HttpRequest(HttpMessage):
-    def __init__(self, raw_data: list):
-        super().__init__(raw_data)
+    def __init__(self):
+        super().__init__()
         self.method = ''
         self.url = ''
 
@@ -56,8 +59,8 @@ class HttpRequest(HttpMessage):
 
 
 class HttpResponse(HttpMessage):
-    def __init__(self, raw_data: list):
-        super().__init__(raw_data)
+    def __init__(self):
+        super().__init__()
         self.status_code = 0
 
     def parse(self) -> bool:
@@ -76,8 +79,14 @@ class HttpResponse(HttpMessage):
 
 class HttpSession:
     def __init__(self):
-        self.request: HttpRequest = None
-        self.response: HttpResponse= None
+        self.request = HttpRequest()
+        self.response= HttpResponse()
+
+    def add_request_data(self, data):
+        self.request.add_data(data)
+
+    def add_response_data(self, data):
+        self.response.add_data(data)
 
     def get_request(self) -> HttpRequest:
         return self.request

@@ -12,7 +12,8 @@ Transfer-Encoding: chunked\r
 \r
 5\r\nhello\r\n6\r\n world\r
 '''
-        request = HttpRequest([data])
+        request = HttpRequest()
+        request.add_data(data)
         success = request.parse()
         self.assertTrue(success)
         self.assertTrue(request.is_invalid)
@@ -31,7 +32,8 @@ Transfer-Encoding: chunked\r
 \r
 5\r\nhello\r\n6\r\n world\r
 '''
-        request = HttpRequest([data])
+        request = HttpRequest()
+        request.add_data(data)
         success = request.parse()
         self.assertFalse(success)
         self.assertFalse(request.is_invalid)
@@ -52,7 +54,8 @@ Content-Type: text/html;\r
 Content-Length: 130\r
 \r
 '''
-        response = HttpResponse([data])
+        response = HttpResponse()
+        response.add_data(data)
         success = response.parse()
         self.assertTrue(success)
         self.assertTrue(response.is_invalid)
@@ -74,7 +77,8 @@ Content-Type: text/html;\r
 Content-Length: 130\r
 \r
 '''
-        response = HttpResponse([data])
+        response = HttpResponse()
+        response.add_data(data)
         success = response.parse()
         self.assertFalse(success)
         self.assertFalse(response.is_invalid)

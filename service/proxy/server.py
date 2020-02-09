@@ -18,14 +18,17 @@ class ProxyServer(QThread):
         self.laddr = laddr
         self.lport = lport
         self.listen_sock = None
-        self.sessions = {}
         self.server = None
         self.loop = None
+
+    def set_history_model(self, model):
+        self.history_model = model
 
     def run(self):
         self.loop = asyncio.new_event_loop()
         # self.loop.set_debug(True)
-        corotine = self.loop.create_server(lambda: RequestProtocol(self.ca_service, self.loop), host=self.laddr, port=self.lport)
+        corotine = self.loop.create_server(lambda: RequestProtocol(self.ca_service, self.history_model, self.loop),
+                                           host=self.laddr, port=self.lport)
         try:
             self.server = self.loop.run_until_complete(corotine)
             log.warning('proxy server is started on %s:%s', self.laddr, self.lport)

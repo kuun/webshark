@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
         dock.setTitleBarWidget(QWidget())
         dock.setAllowedAreas(Qt.LeftDockWidgetArea)
         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+        dock.setStyleSheet('background-color: #845EC2; color: #B39CD0')
 
         self.nav_list = QListWidget(dock)
         self.nav_list.setSelectionMode(QAbstractItemView.SingleSelection)
